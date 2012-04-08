@@ -1,0 +1,17 @@
+<?php
+	if (g56::exists('SESSION.admin'))
+		return g56::call('loginok.php');
+?>
+<div id = "form">
+  <fieldset>
+  <legend>WELCOME THE ADMIN PANEL</legend>
+  <form action = "login.php" method = "POST" >
+	<dl>
+	  <dt>name   :</dt>
+	  <dd><input type = "text" name  = "name"></dd>
+	  <dt>pass   :</dt>
+	  <dd><input type = "password" name  = "password"></dd>
+	  <dd><input class = "subbutton" type = "submit" value = "login" ></dd>
+	</dl>
+  </form>
+</div>

@@ -1,0 +1,10 @@
+<?php
+
+  if (g56::exists('SESSION.error')) {
+        echo "<p class = 'info'> <img src = '". g56::serve_root() . "body/images/close.png' /><strong> " . g56::get('SESSION.error') . "</strong></p>";
+        g56::clear('SESSION.error');
+  }
+
+?>
+<!-- değişen taslak arka planı için bitişi için bakınız : footer.htm -->
+<div style = 'background-color:#fff'>

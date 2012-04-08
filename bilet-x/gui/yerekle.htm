@@ -1,0 +1,22 @@
+<?php
+	if (!g56::exists('SESSION.admin'))
+		return g56::call('../404.php');
+?>
+<div id = "form">
+<form action = "yeradd.php" method = "POST">
+  <dl>
+  <fieldset>
+	<legend>YER EKLE</legend>
+	<dt>Etkinlikler :</dt>
+	<dd>
+		<?php listbox_kv(etkinlikler(), 'etkinlik_id'); ?>
+	</dd>
+	<dt>İller :</dt>
+	<dd>
+		<?php listbox_kv(iller(), 'il_id');?>
+	</dd>
+	<dd><input class = "subbutton" type = "submit" value = "yer_kaydet"></dd>
+  </fieldset>
+  </dl>
+</form>
+</div>

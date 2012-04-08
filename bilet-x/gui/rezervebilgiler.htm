@@ -1,0 +1,42 @@
+<p class = 'info'>
+  <img src = 'body/images/info.png'/><strong>Arama işleminiz aşağıdaki bilgilere göre başarıyla gerçekleştirildi.</strong>
+</p>
+<div id = "form">
+  <dl>
+  <fieldset>
+<?php
+	$etkinlikler = g56::get('SESSION.ok');
+	foreach ($etkinlikler as $head => $info)
+		echo "<legend>". $head ."</legend>";
+
+	
+	echo "<table border = 1>";
+	echo "<tr>";
+	foreach ($info[0] as $key => $field)
+		if ("rezerve_id" != $key)
+			echo "<th> $key </th>";
+
+	echo "</tr>";
+	array_shift($info);
+	
+	foreach ($info as $indis => $fields) {
+		echo "<tr>";
+		foreach ($fields as $key => $validate)
+			if ("rezerve_id" != $key)
+				echo "<th> $validate </th>";
+			else {
+				echo "<th>";
+				echo '<form action = "rezervedel.php" method = "post" >
+					<input type = "hidden" name = "rezerve_id" value = "' . $validate . '">
+					<input type = "submit" value = "iptal_et">
+					  </form>';
+				echo "</th>";
+			}
+		echo "</tr>";
+	}
+	echo "</table>";
+	echo "</p>";
+?>
+	</fieldset>
+	</dl>
+</div>

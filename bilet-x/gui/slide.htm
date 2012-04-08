@@ -1,0 +1,26 @@
+<center>
+<br/>
+biletim.org'a hoşgeldiniz.
+<br/>
+</center>
+
+<div id = "container">
+	<img src = "body/images/slide-img/new-ribbon.png" width = "112" height = "112" id = "ribbon">
+    <div id = "slides">
+      <div class = "slides_container">
+      <?php
+      $etkinlik = new g56('ETKINLIK');
+	  $etkinlikler = $etkinlik->rows(NULL, 'etkinlik_id');
+	  // max yeni etkinlik + hotticket					
+	  $MAX = 5;
+	  $fields = array();
+
+	  for ($j = 0, $i = $etkinlikler['count'] - 1; $j < $MAX; $i--, $j++)
+        echo "<img src='resim/". $etkinlikler['items'][$i]['etkinlik_id'] . ".jpg' width='250' height='270'>";
+        ?>
+      </div>
+      <a href = "#" class = "prev"><img src = "body/images/slide-img/arrow-prev.png" width = "24" height = "43"></a>
+      <a href = "#" class = "next"><img src = "body/images/slide-img/arrow-next.png" width = "24" height = "43"></a>
+	</div>
+    <img src = "body/images/slide-img/example-frame.png" width = "739" height = "341" id = "frame">
+</div>

@@ -1,0 +1,35 @@
+<?php
+$admin_tip = (g56::get('SESSION.super')) ?  "Super Admin" : "Admin";
+	if (g56::exists('SESSION.admin')) {
+		echo "
+		<div id = 'login'>
+			<form>
+			<dl>
+				<img src = '../body/images/admin.png'>	
+				" .
+				g56::get('SESSION.admin') .
+				"
+				<p class = 'info2'>Admin tipi : "
+				. $admin_tip .
+				"<br/>oturumu kapatmak için <a href = 'logout.php'>tıklayınız.</a>
+				</p>
+			</dl>
+			</form>
+		</div>";
+	}else  {
+		echo
+		"<div id = 'login'>
+			<form>
+			<dl>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+				<dd>&nbsp;</dd>
+			</dl>
+			</form>
+		</div>";
+	}
+?>

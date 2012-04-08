@@ -1,0 +1,18 @@
+<?php
+	if (!g56::exists('SESSION.admin'))
+		return g56::call('../404.php');
+?>
+<div id = "form">
+<form action = "userdel.php" method = "POST">
+  <dl>
+  <fieldset>
+	<legend>KULLANICI SİL</legend>
+	<dt>Kullanıcılar :</dt>
+	<dd>
+		<?php listbox(musteriler(), 'username');?>
+	</dd>
+	<dd><input class = "subbutton" type = "submit" value = "kullanıcı_sil"></dd>
+  </fieldset>
+  </dl>
+</form>
+</div>

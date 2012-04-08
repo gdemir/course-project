@@ -1,0 +1,35 @@
+<div class = 'info2' id = "hotticket">
+  <p class = 'info'>
+<?php
+
+	$etkinlik = new g56('ETKINLIK');
+	$etkinlikler = $etkinlik->rows(NULL, 'etkinlik_id, ad');
+
+	$fields = array();
+
+	for ($j = 0, $i = $etkinlikler['count'] - 1; $j < $MAX; $i--, $j++)
+		array_push($fields, $etkinlikler['items'][$i]);
+
+	echo "<legend>YENİ ETKİNLİKLER</legend>";
+
+	foreach ($fields as $indis => $field) {
+		echo "<p class = 'info2'>";
+		foreach ($field as $key => $value)
+			if ($key == 'etkinlik_id') {
+				$etkinlik_id = $value;
+				$tarihler = tarihler($value);
+				$tarih_aralik = ($tarihler[0] == $tarihler[count($tarihler) - 1]) ? $tarihler[0] : $tarihler[0] ." / ". $tarihler[count($tarihler) - 1];
+			} else {
+				echo "<b>$key : </b> $value";
+			}
+		echo "<b>   tarih : </b>  $tarih_aralik ";
+		echo '<form action = "etkinlikkategori.php" method = "post" >
+			<input type = "hidden" name = "etkinlik_id" value = "' . $etkinlik_id . '">
+			<input type = "submit" value = "satın al">
+			  </form>';
+		echo "</p>";
+	}
+
+?>
+  </p>
+</div>

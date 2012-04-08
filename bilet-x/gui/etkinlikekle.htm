@@ -1,0 +1,22 @@
+<?php
+	if (!g56::exists('SESSION.admin'))
+		return g56::call('../404.php');
+?>
+<div id = "form">
+<form action = "etkinlikadd.php" method = "POST" enctype = "multipart/form-data">
+  <dl>
+  <fieldset>
+	<legend>ETKİNLİK OLUŞTUR</legend>
+	 <dd><input type = "file" name = "file" id = "file"/></dd>
+	<dd><span>Resim 500 KB'ı geçmemeli,JPEG formatında olmalıdır.</span></dd>
+	<dt>Ad :</dt>
+	<dd><input type = "text" name  = "ad"></dd>
+	<dt>Kategoriler :</dt>
+	<dd>
+		<?php listbox_kv(kategoriler(), 'kategori_id');?>
+	</dd>
+	<dd><input class = "subbutton" type = "submit" value = "etkinlik_kaydet"></dd>
+  </fieldset>
+  </dl>
+</form>
+</div>

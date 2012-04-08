@@ -1,0 +1,39 @@
+<?php
+
+	if (!g56::exists('SESSION.koltuk_id'))
+		g56::call('404.php');
+
+	if (g56::exists('SESSION.ucret_id'))
+		g56::clear('SESSION.ucret_id');
+
+?>
+<p class = 'info'><img src = 'body/images/info.png'/><strong>Satın alacağınız etkinliğinizin ücret bilgileri</strong></p>
+<div id = "form">
+  <form action = 'etkinlikal.php' method = 'post'>
+  <dl>
+    <p class = 'info'>
+      <img src = 'resim/<?php echo g56::get('SESSION.etkinlik_id') . ".jpg' width = '250' height = '250'"; ?> />
+    </p>
+	<p class = 'info2'>
+        <b>Kategori ad : </b><?php echo g56::get('SESSION.kategori_ad');?>
+        <br/>
+	    <b>Etkinlik ad : </b><?php echo g56::get('SESSION.etkinlik_ad');?>
+        <br/>
+	    <b>İl : </b><?php echo g56::get('SESSION.il_ad');?>
+        <br/>
+	    <b>Tarih : </b><?php echo g56::get('SESSION.tarih');?>
+        <br/>
+	    <b>Salon : </b><?php echo g56::get('SESSION.salon_ad');?>
+        <br/>
+	    <b>koltuk : </b><?php echo g56::get('SESSION.koltuk_ad');?>
+    </p>
+    <fieldset>
+    <dt>Ücret:</dt>
+    <dd><?php echo listbox_kv(g56::get('SESSION.ucretler'), 'ucret_id'); ?></dd>
+
+    <dd><input class = "subbutton" type = "submit" value = "sonrakiadim"></dd>
+
+    </fieldset>
+  </dl>
+  </form>
+</div>

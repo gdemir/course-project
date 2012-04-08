@@ -1,0 +1,45 @@
+<script type="text/javascript">
+	today = new Date();
+	jran = today.getTime();
+	link_404 = "body/images/404/";
+	function rand(number) {
+		jran = (jran * 9301 + 49297) % 233280;
+		return Math.ceil(jran / (233280 * 1.0) * number);
+	}
+	function bas_404(renk) {
+		document.write('<img class="orta" border="0" alt="http://gdemir.me/404" src ="');
+		document.write(link_404 + renk);
+		document.write('.png" id="renk" onmouseover="mouse_in()" onmouseout="mouse_out()"/>');
+	}
+	function mouse_in() {
+		document.getElementById("renk").src = link_404 + "404_default.png";
+	}
+	function mouse_out() {
+		document.getElementById("renk").src = link_404 + "404_"+ renk + ".png";
+	}
+	var renkler = {
+			1 : 'red',
+			2 : 'green',
+			3 : 'yellow',
+			4 : 'pink',
+			5 : 'blue',
+			 };
+	renk = renkler[rand(5)];
+	bas_404("404_" + renk);
+</script>
+<style type="text/css">
+		.orta {
+			float: right;
+			margin-right: 350px;
+		}
+		.alt {
+			float: right;
+			margin-top: -0em;
+			margin-right: 25em;
+		}
+</style>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>

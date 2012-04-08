@@ -1,0 +1,27 @@
+<?php
+
+	if (g56::exists('SESSION.kategori_id') and g56::exists('SESSION.il_id')) {
+		g56::clear('SESSION.kategori_id');
+		g56::clear('SESSION.il_id');
+	}
+
+?>
+<div id = "form" >
+  <form action = "etkinlikbul.php" method = "POST">
+  <dl>
+  <fieldset>
+    <legend>ETKİNLİK ARA</legend>
+
+    <dt>Kategoriler :</dt>
+    <dd><?php echo listbox_kv(kategoriler(), 'kategori_id'); ?></dd>
+
+    <dt>Etkinlik tarih :</dt>
+    <dd><input type = "text" name = "tarih" id = "inputField" /></dd>
+
+    <dt>İller :</dt>
+    <dd><?php echo listbox_kv(iller(), 'il_id'); ?></dd>
+    <dd><input class = "subbutton" type = "submit" value = "etkinlik_ara"></dd>
+  </fieldset>
+  </dl>
+  </form>
+</div>

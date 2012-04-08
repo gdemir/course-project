@@ -1,0 +1,26 @@
+#login {
+  width: 300px;
+  text-align: center;
+  background-color:   #eeeeee; /* gray */
+
+  -moz-border-radius: 8px;
+  border-radius:      8px;
+  border:             1px solid #bebebe; /* cercevemiz */
+
+  margin-top: -273px;
+  margin-left: 600px;
+  font-family:    helvetica, geneva, arial, sans-serif;
+  display: block;
+}
+#login dt {
+  font:         14px Arial, Helvetica, sans-serif;
+  float:	left;
+
+  display:      block;
+}
+#login dd {
+  font:         bold 12px Arial, Helvetica, sans-serif;
+
+  text-align:   right;
+  display:      block;
+}

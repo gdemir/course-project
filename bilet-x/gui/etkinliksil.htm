@@ -1,0 +1,18 @@
+<?php
+	if (!g56::exists('SESSION.admin'))
+		return g56::call('../404.php');
+?>
+<div id = "form">
+<form action = "etkinlikdel.php" method = "POST" enctype = "multipart/form-data">
+  <dl>
+  <fieldset>
+	<legend>ETKİNLİK SİL</legend>
+	<dt>Etkinlikler :</dt>
+	<dd>
+		<?php listbox_kv(etkinlikler(), 'etkinlik_id');?>
+	</dd>
+	<dd><input class="subbutton" type = "submit" value = "etkinlik_sil"></dd>
+  </fieldset>
+  </dl>
+</form>
+</div>

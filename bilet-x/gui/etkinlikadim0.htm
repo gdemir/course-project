@@ -1,0 +1,36 @@
+<?php
+
+	if (!g56::exists('SESSION.etkinlik_id'))
+		g56::call('404.php');
+
+	if (g56::exists('SESSION.tarih'))
+		g56::clear('SESSION.tarih');
+
+?>
+<p class = 'info'>
+  <img src = 'body/images/info.png'/><strong> Satın alacağınız etkinliğin il bilgisini seçiniz.</strong>
+</p>
+<div id = "form">
+  <form action = 'etkinlikil.php' method = 'post'>
+  <dl>
+
+    <p class = 'info'>
+      <img src = 'resim/<?php echo g56::get('SESSION.etkinlik_id') . ".jpg' width = '250' height = '250'"; ?> />
+    </p>
+
+    <p class = 'info2'>
+        <b>Kategori ad : </b><?php echo g56::get('SESSION.kategori_ad');?>
+        <br/>
+	    <b>Etkinlik ad : </b><?php echo g56::get('SESSION.etkinlik_ad');?>
+    </p>
+
+    <fieldset>
+    <dt>İller:</dt>
+    <dd><?php echo listbox_kv(g56::get('SESSION.iller'), 'il_id'); ?></dd>
+
+    <dd><input class = "subbutton" type = "submit" value = "sonrakiadim"></dd>
+
+    </fieldset>
+  </dl>
+  </form>
+</div>

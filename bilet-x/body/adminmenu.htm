@@ -1,0 +1,36 @@
+<?php
+	if (!g56::exists('SESSION.admin'))
+		return;
+?>
+<div id = 'adminmenu'>
+  <p class = "info">
+    <?php 
+		if (g56::exists('SESSION.super'))
+			echo "<a href = 'adminekle.php'>
+					<img src = '" . g56::serve_root() . "body/images/adminadd.png'/>Admin ekle
+				  </a>		
+				  <a href = 'adminsil.php'>
+				    <img src = '" . g56::serve_root() . "body/images/admindel.png'>Admin sil
+				  </a>";
+	 ?>
+
+	<a href = 'etkinlikekle.php'>
+	  <img src = '<?php echo g56::serve_root(); ?>body/images/plus.png'>Etkinlik ekle
+	</a>
+
+	<a href = 'yerekle.php'>
+	  <img src = '<?php echo g56::serve_root(); ?>body/images/world.png'>Yer ekle
+	</a>
+
+	<a href = 'tarihekle.php'>
+	  <img src = '<?php echo g56::serve_root(); ?>body/images/calendar.png'>Tarih ekle
+	</a>
+
+	<a href = 'etkinliksil.php'>
+	  <img src = '<?php echo g56::serve_root(); ?>body/images/minus.png'>Etkinlik sil
+	</a>
+	<a href = 'usersil.php'>
+	  <img src = '<?php echo g56::serve_root(); ?>body/images/userdel.png'>User sil
+    </a>
+  </p>
+</div>

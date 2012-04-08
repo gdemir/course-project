@@ -1,0 +1,45 @@
+<?php
+
+	if (!(g56::exists('SESSION.kategori_id') and g56::exists('SESSION.il_id') and g56::exists('SESSION.ok')))
+		g56::call('404.php');
+
+	if (g56::exists('SESSION.etkinlik_id'))
+		g56::clear('SESSION.etkinlik_id');
+?>
+<p class = 'info'>
+  <img src = 'body/images/info.png'/><strong>Arama işleminiz aşağıdaki bilgilere göre başarıyla gerçekleştirildi.</strong>
+</p>
+<div id = "form">
+  <dl>
+  <fieldset>
+    <p class = 'info2'> <strong>Kategori : <?php echo g56::get('SESSION.kategori_ad'); ?><br/>
+				İl :       <?php echo g56::get('SESSION.il_ad'); ?></strong>
+    </p>
+    <?php
+	$etkinlikler = g56::get('SESSION.ok');
+	foreach ($etkinlikler as $head => $info)
+		echo "<legend>". $head ."</legend>";
+
+	foreach ($info as $indis => $field) {
+		;/* void */
+		foreach ($field as $key => $value)
+			if ($key == 'etkinlik_id') {
+				$etkinlik_id = $value;
+				$tarihler = tarihler($value);
+				$tarih_aralik = ($tarihler[0] == $tarihler[count($tarihler) - 1]) ? $tarihler[0] : $tarihler[0] ." / ". $tarihler[count($tarihler) - 1];
+
+			} else {
+				echo "<p class = 'info2'>";
+				echo "<b>$key : </b> $value";
+			}
+			echo "<b>   tarih : </b>  $tarih_aralik ";
+		echo '<form action = "etkinliktarih.php" method = "post" >
+			<input type = "hidden" name = "etkinlik_id" value = "' . $etkinlik_id . '">
+			<input type = "submit" value = "satın al">
+		      </form>';
+		echo "</p>";
+	}
+  ?>
+  </fieldset>
+  </dl>
+</div>

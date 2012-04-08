@@ -1,0 +1,11 @@
+; database bilgileri
+DB.user=bir_kullanıcı_ver
+DB.name=bir_veritabanı_ismi_ver
+DB.password=bir_şifre_ver
+DB.host=localhost
+
+; ör : gui template dizini "gui"
+GUI=gui
+
+; ör : body site taslak dizini "body"
+BODY=body

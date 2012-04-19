@@ -29,13 +29,13 @@ public class Perceptron {
     }
     public static void main(String[] args) throws FileNotFoundException, IOException {    
         try {
-            List<List> io_elements = Matrix.fileread("train.txt", 2); // train : 3 column; test : 2 column
+            List<List> io_elements = Matrix.fileread("train_perceptron.txt", 2); // train : 3 column; test : 2 column
             List<List> input_elements = io_elements.get(0);
             List<Double> output_elements = io_elements.get(1);
 
             Perceptron perceptron = new Perceptron();
             perceptron.train(io_elements);
-                io_elements = Matrix.fileread("test.txt", 2); // train : 3 column; test : 2 column
+                io_elements = Matrix.fileread("test_perceptron.txt", 2); // train : 3 column; test : 2 column
                 input_elements = io_elements.get(0);
                 output_elements = io_elements.get(1);
             Perceptron.test(input_elements, perceptron.getweight());
@@ -50,6 +50,8 @@ public class Perceptron {
     private void initweight(int column) {
         for (int i = 0; i < column; i++)
             weight.add(1 + Math.random());
+        //weight.set(0, 1.0);
+        //weight.set(1, 2.0);
     }
     public List<Double> getweight() {
         return weight;
@@ -69,17 +71,12 @@ public class Perceptron {
         while (true) {
             iteration++;
             target = process(input_elements.get(i), weight);
-            System.out.println(iteration + ". iterasyon: Target: " + target + " weight: " + weight);
+            System.out.println(iteration + ". iterasyon: Target: " + target + "Beklenen"+ output_elements.get(i) +" weight: " + weight);
             if (target == output_elements.get(i)) {
                 i++; // diğer x'e geç
                 if (i >= row) break;
-            } else { // onar ve başa dön
-                weight_repair(input_elements.get(i));
-                boolean state = false;
-                for (int j = 0; j < weight.size(); j++)
-                    if ((double)weight.get(j) < -1)
-                        state = true;
-                if (state) break;
+            } else { 
+                weight_repair((target > output_elements.get(i)) ? false : true, input_elements.get(i));
                 i = 0;
             }
         }
@@ -96,13 +93,16 @@ public class Perceptron {
         }
     }
     private static double process(List<Double> input_elements, List<Double> w) {
-        double output = 0;
+        double net = 0;
         for (int i = 0; i < input_elements.size(); i++)
-            output += input_elements.get(i) * w.get(i);
-        return (output > bias) ? 1 : 0;
+            net += input_elements.get(i) * w.get(i);
+        return (net > bias) ? 1 : 0;
    }
-   private void weight_repair(List<Double> input_elements) {
+   private void weight_repair(boolean choice, List<Double> input_elements) {
         for (int i = 0; i < weight.size(); i++)
-            weight.set(i, ((double)weight.get(i) - learningrate * input_elements.get(i)));
+            if (choice)
+                weight.set(i, ((double)weight.get(i) + learningrate * input_elements.get(i)));
+            else
+                weight.set(i, ((double)weight.get(i) - learningrate * input_elements.get(i)));
     }
 }

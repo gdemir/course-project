@@ -67,7 +67,8 @@ public class Matrix {
         String[] temp;
         int i, j;
         for (i = 0; i < lines.length; i++) {
-            if (lines[i] == " ") continue;
+            if ("".equals(lines[i]))
+                continue;
             temp = lines[i].split(",");
             List vector = new ArrayList<Double>();
             for (j = 0; j < column; j++)

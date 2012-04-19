@@ -30,7 +30,7 @@ public class Loadimage extends Component {
     @Override
     public Dimension getPreferredSize() {  
         if (img == null) {  
-             return new Dimension(100,100);  
+             return new Dimension(100, 100);  
         } else {  
            return new Dimension(img.getWidth(null), img.getHeight(null));  
        }  
@@ -46,9 +46,9 @@ public class Loadimage extends Component {
                     System.exit(0);  
                 }  
             });  
-  
-        f.add(new Loadimage());  
-        f.pack();  
-        f.setVisible(true);  
+
+        f.add(new Loadimage());
+        f.pack();
+        f.setVisible(true);
     }  
 }  

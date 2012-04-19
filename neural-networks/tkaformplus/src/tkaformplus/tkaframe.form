@@ -44,11 +44,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="about">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="About"/>
-          </Properties>
-        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>
@@ -77,35 +72,56 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="jScrollPane3" alignment="0" max="32767" attributes="1"/>
-                      <Component id="jScrollPane2" alignment="0" pref="239" max="32767" attributes="1"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="labelinputcount" min="-2" max="-2" attributes="0"/>
                           <Component id="labelhiddencount" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="hiddencount" max="32767" attributes="1"/>
-                          <Component id="inputcount" alignment="0" pref="151" max="32767" attributes="1"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="hiddencount" pref="190" max="32767" attributes="1"/>
+                          <Component id="inputcount" alignment="0" pref="190" max="32767" attributes="1"/>
                       </Group>
                   </Group>
+                  <Component id="jScrollPane2" pref="256" max="32767" attributes="1"/>
+                  <Component id="jScrollPane3" pref="256" max="32767" attributes="1"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="496" max="32767" attributes="1"/>
-                  <Component id="combobox" alignment="0" pref="496" max="32767" attributes="1"/>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="train" min="-2" pref="109" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="test" pref="109" max="32767" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="clear" pref="109" max="32767" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="graph" pref="109" max="32767" attributes="1"/>
-                      <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="train" min="-2" pref="99" max="-2" attributes="1"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="test" min="-2" pref="97" max="-2" attributes="1"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="clear" min="-2" pref="93" max="-2" attributes="1"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="graph" min="-2" pref="96" max="-2" attributes="1"/>
+                      </Group>
+                      <Component id="jScrollPane1" alignment="1" min="-2" pref="480" max="-2" attributes="1"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="labelalgorithm" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="labeltestset" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="labeltrainset" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="comboboxalgorithm" alignment="1" max="32767" attributes="1"/>
+                          <Component id="comboboxtestset" alignment="1" pref="343" max="32767" attributes="1"/>
+                          <Component id="comboboxtrainset" alignment="0" min="-2" pref="417" max="-2" attributes="1"/>
+                      </Group>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -116,30 +132,55 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="jScrollPane2" min="-2" pref="214" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="94" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" min="-2" pref="163" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane3" pref="169" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPane1" pref="319" max="32767" attributes="1"/>
+                  <Component id="jScrollPane1" pref="338" max="32767" attributes="1"/>
+              </Group>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="labelinputcount" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="inputcount" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="labelhiddencount" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="hiddencount" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="comboboxtrainset" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="labeltrainset" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace pref="9" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="comboboxtestset" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="labeltestset" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="comboboxalgorithm" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="labelalgorithm" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="train" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="test" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="clear" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="graph" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="combobox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelinputcount" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="inputcount" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="train" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelhiddencount" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="hiddencount" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="test" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="clear" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="graph" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -160,7 +201,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JComboBox" name="combobox">
+    <Component class="javax.swing.JComboBox" name="comboboxalgorithm">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="3">
@@ -233,6 +274,12 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="hiddencount">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="0"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hiddencountActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="labelhiddencount">
       <Properties>
@@ -246,6 +293,43 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="graphActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="comboboxtestset">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="3">
+            <StringItem index="0" value="perceptron"/>
+            <StringItem index="1" value="adaline"/>
+            <StringItem index="2" value="backpropagation"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="comboboxtrainset">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="3">
+            <StringItem index="0" value="perceptron"/>
+            <StringItem index="1" value="adaline"/>
+            <StringItem index="2" value="backpropagation"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labeltrainset">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="train set"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labeltestset">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="test set"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labelalgorithm">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="algorithm"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

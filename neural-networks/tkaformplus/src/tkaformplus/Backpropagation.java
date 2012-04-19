@@ -179,6 +179,7 @@ public class Backpropagation {
                 error += Math.pow(Y.get(i) - output_elements.get(i), 2);
             error = Math.sqrt(error / row);
             errors.add(error);
+            //System.out.print("error:"+error);
             return (error > E) ? false : true;
     }
     

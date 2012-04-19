@@ -85,7 +85,7 @@ public class Adaline {
                 
                 error = Math.sqrt(sum_error / iteration);
                 errors.add(error);
-                System.out.println("sum error : " + error);
+                System.out.print("error:"+error);
                 i = 0;
             }
         }

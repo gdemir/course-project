@@ -10,6 +10,12 @@
  */
 package tkaformplus;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -23,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
@@ -34,8 +41,9 @@ public class tkaframe extends javax.swing.JFrame {
     public List<List> io_elements = new ArrayList<List>();
     public List<List> input_elements = new ArrayList<List>();
     public List<Double> output_elements = new ArrayList<Double>();
+    private static List<Double> errors = new ArrayList<Double>();
+    JFrame frame = new JFrame();
 
-    
     /** Creates new form tkaframe */
     public tkaframe() {
         initComponents();
@@ -53,7 +61,7 @@ public class tkaframe extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         textarea = new javax.swing.JTextArea();
-        combobox = new javax.swing.JComboBox();
+        comboboxalgorithm = new javax.swing.JComboBox();
         train = new javax.swing.JButton();
         test = new javax.swing.JButton();
         clear = new javax.swing.JButton();
@@ -66,12 +74,16 @@ public class tkaframe extends javax.swing.JFrame {
         hiddencount = new javax.swing.JTextField();
         labelhiddencount = new javax.swing.JLabel();
         graph = new javax.swing.JButton();
+        comboboxtestset = new javax.swing.JComboBox();
+        comboboxtrainset = new javax.swing.JComboBox();
+        labeltrainset = new javax.swing.JLabel();
+        labeltestset = new javax.swing.JLabel();
+        labelalgorithm = new javax.swing.JLabel();
         menu = new javax.swing.JMenuBar();
         file = new javax.swing.JMenu();
         opentrainfile = new javax.swing.JMenuItem();
         opentestfile = new javax.swing.JMenuItem();
         exit = new javax.swing.JMenuItem();
-        about = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,7 +91,7 @@ public class tkaframe extends javax.swing.JFrame {
         textarea.setRows(5);
         jScrollPane1.setViewportView(textarea);
 
-        combobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+        comboboxalgorithm.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
 
         train.setText("train");
         train.addActionListener(new java.awt.event.ActionListener() {
@@ -112,6 +124,13 @@ public class tkaframe extends javax.swing.JFrame {
 
         labelinputcount.setText("input count");
 
+        hiddencount.setText("0");
+        hiddencount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hiddencountActionPerformed(evt);
+            }
+        });
+
         labelhiddencount.setText("hidden count");
 
         graph.setText("error");
@@ -120,6 +139,16 @@ public class tkaframe extends javax.swing.JFrame {
                 graphActionPerformed(evt);
             }
         });
+
+        comboboxtestset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+
+        comboboxtrainset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+
+        labeltrainset.setText("train set");
+
+        labeltestset.setText("test set");
+
+        labelalgorithm.setText("algorithm");
 
         file.setText("File");
 
@@ -152,9 +181,6 @@ public class tkaframe extends javax.swing.JFrame {
 
         menu.add(file);
 
-        about.setText("About");
-        menu.add(about);
-
         setJMenuBar(menu);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -164,56 +190,87 @@ public class tkaframe extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(labelinputcount)
                             .addComponent(labelhiddencount))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(hiddencount)
-                            .addComponent(inputcount, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(hiddencount, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                            .addComponent(inputcount, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
-                    .addComponent(combobox, 0, 496, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(train, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(test, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(clear, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(graph, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
-                        .addGap(42, 42, 42)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(train, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(test, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(clear, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(graph, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(labelalgorithm)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(labeltestset)
+                                        .addGap(3, 3, 3)))
+                                .addGap(19, 19, 19))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(labeltrainset)
+                                .addGap(18, 18, 18)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(comboboxalgorithm, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(comboboxtestset, javax.swing.GroupLayout.Alignment.TRAILING, 0, 343, Short.MAX_VALUE)
+                            .addComponent(comboboxtrainset, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(combobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(labelinputcount)
-                    .addComponent(inputcount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(train)
-                    .addComponent(labelhiddencount)
-                    .addComponent(hiddencount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(test)
-                    .addComponent(clear)
-                    .addComponent(graph))
-                .addGap(53, 53, 53))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelinputcount)
+                            .addComponent(inputcount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(10, 10, 10)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelhiddencount)
+                            .addComponent(hiddencount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(comboboxtrainset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(labeltrainset))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(comboboxtestset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(labeltestset))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(comboboxalgorithm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(labelalgorithm))
+                        .addGap(11, 11, 11)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(train)
+                            .addComponent(test)
+                            .addComponent(clear)
+                            .addComponent(graph))))
+                .addContainerGap())
         );
 
         pack();
@@ -221,9 +278,15 @@ public class tkaframe extends javax.swing.JFrame {
 
     private void trainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainActionPerformed
         try {
-            
-            io_elements = Matrix.textread(trainset.getText(), Integer.parseInt(inputcount.getText()));
-            output = Tkaformplus.main(true, combobox.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), null);
+            if ("".equals(trainset.getText())) {
+                String filename = "train_" + comboboxtrainset.getSelectedItem() + ".txt";
+                File files = new File(filename);
+                io_elements = Matrix.fileread(filename, Integer.parseInt(inputcount.getText()));
+                trainset.read( new FileReader( files.getAbsolutePath() ), null );
+            } else {
+                io_elements = Matrix.textread(trainset.getText(), Integer.parseInt(inputcount.getText()));
+            }
+            output = Tkaformplus.main(true, comboboxalgorithm.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), null);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
@@ -235,8 +298,14 @@ public class tkaframe extends javax.swing.JFrame {
 
     private void testActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testActionPerformed
         try {
-            io_elements = Matrix.textread(testset.getText(), Integer.parseInt(inputcount.getText()));
-            Tkaformplus.main(false, combobox.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), output);
+             if ("".equals(testset.getText())) {
+                String filename = "test_" + comboboxtestset.getSelectedItem() + ".txt";
+                File files = new File(filename);
+                io_elements = Matrix.fileread(filename, Integer.parseInt(inputcount.getText()));
+                testset.read( new FileReader( files.getAbsolutePath() ), null );
+             } else
+                io_elements = Matrix.textread(testset.getText(), Integer.parseInt(inputcount.getText()));
+            Tkaformplus.main(false, comboboxalgorithm.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), output);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
@@ -249,8 +318,47 @@ public class tkaframe extends javax.swing.JFrame {
     private void clearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearActionPerformed
     //    Chart.plot(null);
         textarea.setText("");
-    }//GEN-LAST:event_clearActionPerformed
+        trainset.setText("");
+        testset.setText("");
+        final int height = 300;
+        final int width = 300;
+        final int slide = 10;
 
+        frame.getContentPane().setBackground(Color.CYAN);
+        frame.setTitle("kordinatlar");
+        frame.setSize(width+5*slide, height+5*slide);
+
+        JPanel jp = new JPanel() {
+            @Override
+            public void paintComponent( Graphics g ) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D)g;
+
+                Line2D linex, liney, line;
+
+                linex = new Line2D.Double(0+slide, 0+slide, 0+slide, height-slide);
+                for (int i = 0; i < height; i++)
+                  g.drawString("hop-", 0, height-i*15);
+                for (int i = 0; i < width; i++)
+                  g.drawString("top-", i*15, height);
+                liney = new Line2D.Double(0+slide, height-slide, width-slide, height-slide);
+                line = new Line2D.Double(10+slide, 10+slide, 40, 40);
+
+                //g2.setColor(Color.red);
+                g2.setStroke(new BasicStroke(1));
+                g2.setBackground(Color.black);
+
+                g2.draw(linex);
+                g2.draw(liney);
+                g2.draw(line);
+                
+            }            
+        };
+        
+        frame.add(jp);
+        frame.setVisible( true );
+    }//GEN-LAST:event_clearActionPerformed
+    
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
         System.exit(1);        
 }//GEN-LAST:event_exitActionPerformed
@@ -312,11 +420,13 @@ public class tkaframe extends javax.swing.JFrame {
     private void graphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_graphActionPerformed
         JFrame f = new JFrame("Load Image Sample");  
         f.add(new Loadimage());  
-        f.pack();  
+        f.pack();
         f.setVisible(true);
     }//GEN-LAST:event_graphActionPerformed
 
-     
+    private void hiddencountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hiddencountActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_hiddencountActionPerformed
  
     /**
      * @param args the command line arguments
@@ -328,8 +438,7 @@ public class tkaframe extends javax.swing.JFrame {
             public void run() {
                 new tkaframe().setVisible(true);
             }
-            
-            
+
         });
     }
 
@@ -337,11 +446,18 @@ public class tkaframe extends javax.swing.JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                textarea.append(text);
+                String[] error;
+                error = text.split("error:");
+                if (error.length == 1)
+                    textarea.append(text);
+                else {
+                    errors.add(Double.parseDouble(error[1]));
+                    //Chart.plot(errors);
+                    //f.add(new Loadimage());  
+                }
             }
         });
     }
-    
 
     private void redirectSystemStreams() {
         OutputStream out = new OutputStream() {
@@ -366,9 +482,10 @@ public class tkaframe extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu about;
     private javax.swing.JButton clear;
-    private javax.swing.JComboBox combobox;
+    private javax.swing.JComboBox comboboxalgorithm;
+    private javax.swing.JComboBox comboboxtestset;
+    private javax.swing.JComboBox comboboxtrainset;
     private javax.swing.JMenuItem exit;
     private javax.swing.JMenu file;
     private javax.swing.JButton graph;
@@ -377,8 +494,11 @@ public class tkaframe extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel labelalgorithm;
     private javax.swing.JLabel labelhiddencount;
     private javax.swing.JLabel labelinputcount;
+    private javax.swing.JLabel labeltestset;
+    private javax.swing.JLabel labeltrainset;
     private javax.swing.JMenuBar menu;
     private javax.swing.JMenuItem opentestfile;
     private javax.swing.JMenuItem opentrainfile;

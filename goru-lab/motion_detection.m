@@ -1,28 +1,26 @@
-function [people] = motion_detection
+function [people] = motion_detection(bw)
     % Example using :
     % ilk_frame ve son_frame'in deðerlerini
-    % deðiþtirerek sonuçlarý görebilirsiniz.
+    % deðiþtirerek ekstra sonuçlarý görebilirsiniz.
     % denemek için örnek girdiler:
     %   ilk_frame = 1    140   195   195
     %   son_frame = 375  211   375   211
 
     I = {};
     ilk_frame = 1;
-    son_frame = 375;
-    j = 1;
+    son_frame = length(bw);
     for i = ilk_frame:son_frame
-        frame_name = strcat('frames\frame', num2str(i), '.jpg'); % frame ismi ata
-        I{j} = imread(frame_name);
-        j = j + 1;
+        I{end+1} = bw{i};
     end
 
-    N = length(I);
+    N = son_frame - ilk_frame + 1;
     [R C] = size(I{1}); % 1. frame gibi
 
-    people = struct('arm_angle', [0], 'arm_width', [0], 'count', [0], 'area', {[0]}, 'bound', {[0]});   % iki insan için bilgiler
+    % iki insan için bilgiler
+    people = struct('arm_angle', [0], 'count', [0], 'area', {[0]}, 'bound', {[0]}, 'top', {[0]});
 
     for i = 1:N
-        P = im2bw(I{i});
+        P = I{i};
         L = bwlabel(P);
         s = regionprops(L, 'all');
         areas = [s.Area];
@@ -32,68 +30,135 @@ function [people] = motion_detection
         % tekrar al
         L = bwlabel(bw);
         s = regionprops(L, 'all');
-        b = [s.BoundingBox];
-        c = [s.Centroid];
-        area = [s.Area];
-        people.count(i) = length(area);
-        for p = 1 : people.count(i)
+        b = [s.BoundingBox];            % boundingleri al
+        c = [s.Centroid];               % merkezleri al
+        area = [s.Area];                % alanlarý al
+        %people.count(i) = length(area); % kiþi sayýsýný ata
+        for p = 1 : length(area)
             people.area(i, p) = area(p);
         end
-        for p = 1 : length(b)
-            people.bound(i, p) = b(p);
-        end
-        if length(b) > 0 && length(b) <= 4
-            for p = length(b):2*length(b)
-                people.bound(i, p) = 0;
+        p1 = false;
+        p2 = false;
+        if length(b) == 4
+            pc = floor(b(1));
+            if (pc > C/2); p2 = true;
+            else p1 = true;
+            end
+            if p1
+                % kiþi sayýsý
+                people.count(i, 1) = 1; % kiþi sayýsýný ata
+                people.count(i, 2) = 0; % kiþi sayýsýný ata
+                % tepe noktasý
+                top = find(P(1:round(c(2)), round(floor(c(1)))) == 1);
+                people.top(i, 1) = c(1);
+                people.top(i, 2) = top(1);
+                people.top(i, 3) = 0;
+                people.top(i, 4) = 0;
+                % geniþlikler için
+                for p = 1:4
+                    people.bound(i, p) = b(p); % 1.kiþiyi ata
+                end
+                for p = 5:8 % 2.kiþiyi sýfýrla
+                    people.bound(i, p) = 0;
+                end
+            elseif p2
+                % kiþi sayýsý
+                people.count(i,1) = 0; % kiþi sayýsýný ata
+                people.count(i,2) = 1; % kiþi sayýsýný ata
+                % tepe noktasý
+                top = find(P(1:round(c(2)), round(floor(c(1)))) == 1);
+                people.top(i,1) = 0;
+                people.top(i,2) = 0;
+                people.top(i,3) = c(1);
+                people.top(i,4) = top(1);
+                % geniþlikler için
+                for p = 1:4
+                    people.bound(i, p) = 0; % 1.kiþiyi sýfýrla
+                end
+                for p = 1:4
+                    people.bound(i, p+4) = b(p); % 2.kiþiyi sýfýrla
+                end
+            end
+        elseif length(b) == 8
+            % kiþi sayýsý
+            people.count(i, 1) = 1; % kiþi sayýsýný ata
+            people.count(i, 2) = 1; % kiþi sayýsýný ata
+            % tepe noktasý
+            top1 = find(P(1:round(c(2)), round(floor(c(1)))) == 1);
+            top2 = find(P(1:round(c(4)), round(floor(c(3)))) == 1);
+            people.top(i, 1) = c(1);
+            people.top(i, 2) = top1(1);
+            people.top(i, 3) = c(3);
+            people.top(i, 4) = top2(1);
+            p1 = true;
+            p2 = true;
+            for p = 1:8
+                people.bound(i, p) = b(p);
             end
         end
-
-        if length(b) > 0
-            p1c = floor(b(1));
-            p1r = floor(b(2));
-            p1c_width = floor(b(3));
-            p1r_width = floor(b(4));
+        if p1 == true
+            p1c = floor(people.bound(i, 1));
+            p1r = floor(people.bound(i, 2));
+            p1c_width = floor(people.bound(i, 3));
+            p1r_width = floor(people.bound(i, 4));
 
             arm_x = p1c + p1c_width;
             arm_y = mean(find(P(:, arm_x) == 1));
 
-            p1x = c(1);
-            p1y = c(2);
+            p1x = people.top(i, 1);
+            p1y = people.top(i, 2);
+
             oran = (arm_y - p1y) / (arm_x - p1x);
             if oran < 0
                 arm_alfa = rad2deg(atan(90 + abs(oran)));
             else            
                 arm_alfa = rad2deg(atan(1 / oran));
             end
-
             people.arm_angle(i, 1) = arm_alfa;
-            people.arm_width(i, 1) = arm_x - p1x;
 
-            if ((p1r + p1r_width) <= R) & ((p1c + p1c_width) <= C) & (p1c > 0)
+            if ((p1r + p1r_width) <= R) && ((p1c + p1c_width) <= C) && (p1c > 0)
                 % sadece p1 resimleri gösterilmek istenirse
                 % figure, imshow(P(p1r:p1r+p1r_width, p1c:p1c+p1c_width))
             end
         end
-        if length(b) > 4
-            p2c = floor(b(5));
-            p2r = floor(b(6));
-            p2c_width = floor(b(7));
-            p2r_width = floor(b(8));
+        if p2 == true
+            p2c = floor(people.bound(i, 5));
+            p2r = floor(people.bound(i, 6));
+            p2c_width = floor(people.bound(i, 7));
+            p2r_width = floor(people.bound(i, 8));
 
             arm_x = p2c + p2c_width;
             arm_y = mean(find(P(:, arm_x) == 1));
 
-            p2x = c(3);
-            p2y = c(4);
+            p2x = people.top(i, 3);
+            p2y = people.top(i, 4);
 
-            arm_alfa = rad2deg(atan((arm_x - p2x) / (arm_y - p2y)));
-
+            oran = (arm_y - p2y) / (p2x - arm_x);
+            if oran < 0
+                arm_alfa = rad2deg(atan(90 + abs(oran)));
+            else            
+                arm_alfa = rad2deg(atan(1 / oran));
+            end
             people.arm_angle(i, 2) = arm_alfa;
-            people.arm_width(i, 2) = arm_x - p2x;
 
-            if ((p2r + p2r_width) <= R) & ((p2c + p2c_width) <= C) & (p2c > 0)
+            if ((p2r + p2r_width) <= R) && ((p2c + p2c_width) <= C) && (p2c > 0)
                 % sadece p2 resimleri gösterilmek istenirse
                 % figure, imshow(P(p2r:p2r+p2r_width, p2c:p2c+p2c_width)) %
+            end
+        end
+        if p1 == false && p2 == false
+            % kiþi tepe noktasýný sýfýrla
+            for p = 1:4
+                people.top(i, p) = 0;
+            end
+            % kiþi kol açýsý, alaný, sayýsýný sýfýrla
+            for p = 1:2
+                people.count(i, p) = 0; % kiþi sayýsýný ata
+                people.area(i, p) = 0;
+                people.arm_angle(i, p) = 0;
+            end
+            for p = 1:8
+                people.bound(i, p) = 0;
             end
         end
     end
@@ -104,105 +169,165 @@ function [people] = motion_detection
     untogether_index = 0;
     together_state = false;
     untogether_state = false;
-    for i = 1:length(people.count)-1
-        if people.count(i) ~= 0
-            p1_right = people.bound(i, 1) + people.bound(i, 3);
-            p2_left = people.bound(i, 5);
-            p_width = p2_left - p1_right;
-            if p1_right < C
-                if together_state == false && p_width < people.bound(i, 3) && people.count(i + 1) < people.count(i)   % kiþi sayýsý azalýyorsa
-                    together_index = i;
-                    together_state = true;
-                end
-                if untogether_state == false && p_width < people.bound(i, 3) && people.count(i + 1) > people.count(i) % kiþi sayýsý artýyorsa
-                    untogether_index = i;
-                    untogether_state = true;
-                end
+    for i = 1:length(people.count)
+        if people.count(i, 1) ~= 0 && people.count(i, 2) ~= 0
+            p1_x = people.bound(i, 1);
+            p1_width = people.bound(i, 3);
+
+            p2_x = people.bound(i, 5);
+            p2_width = people.bound(i, 7);
+
+            p1_right = p1_x + p1_width;
+            p2_left = p2_x;
+
+            if p2_left == 0;      p_width = p1_width;
+            elseif p1_right == C; p_width = p2_width;                    
+            else                  p_width = abs(p2_left - p1_right);  
+            end
+
+            if i < length(people.count) && together_state == false && (p_width < p1_width && p_width < p2_width) && sum(people.count(i + 1, :)) < sum(people.count(i, :))   % kiþi sayýsý azalýyorsa
+                together_index = i + 1;
+                together_state = true;
+            end
+
+            if i > 1 && untogether_state == false && (p_width < p1_width && p_width < p2_width) && sum(people.count(i, :)) > sum(people.count(i - 1, :)) % kiþi sayýsý artýyorsa
+                untogether_index = i - 1;
+                untogether_state = true;
             end
         end
     end
 
     % p1 arm angle with bounding box and motion starting ?
     % kol merkezden açýsý artýyorsa haraket baþlama zamanýný yakala
-    motion_starting_index = 0;
-    motion_starting_state = false;
-    p1_mean_width = mean(people.bound(:, 3));
-    if together_state
-        for i = together_index-1:-1:1
-            if p1_mean_width < people.bound(i, 3) & people.arm_angle(i) < people.arm_angle(i + 1)
-                motion_starting_state = true;
-            elseif motion_starting_state == true
-                motion_starting_index = i + 1;
-                break;
-            end
-        end
-    end
 
-    % p2 bounding_box and motion ending ?
-    % p2 hareketini ne zaman bitiriyor
-    motion_ending_index = 0;
-    motion_ending_state = false;
-    p2_mean_width = mean(people.bound(:, 7));
-    if untogether_state
-        for i = untogether_index:N
-            if p2_mean_width < people.bound(i, 7)
-                motion_ending_index = i;
-                motion_ending_state = true;
-                break;
-            end
+    p1_motion_starting_index = 0;
+    p2_motion_starting_index = 0;
+    p1_motion_starting_state = false;
+    p2_motion_starting_state = false;
+    p1_mean_width = mean(people.bound(find(people.bound(:, 3) ~= 0 & people.bound(:, 7) ~= 0), 3));
+    p2_mean_width = mean(people.bound(find(people.bound(:, 7) ~= 0), 7));
+
+    if together_state
+        % 2 kiþinin olduðu anda ki kol açýlarýnýn ortalamalarýný ve
+        % standart sapmalarýný ata
+        count2 = find(people.count(:, 1) == 1 & people.count(:, 2) == 1);
+        p1_mean_arm_angle = mean(people.arm_angle(count2(1):together_index, 1));
+        p2_mean_arm_angle = mean(people.arm_angle(count2(1):together_index, 2));
+        p1_std_arm_angle = std(people.arm_angle(count2(1):together_index, 1));
+        p2_std_arm_angle = std(people.arm_angle(count2(1):together_index, 2));
+
+        p1_min_arm_angle = p1_mean_arm_angle - p1_std_arm_angle;
+        p1_max_arm_angle = p1_mean_arm_angle + p1_std_arm_angle;
+        p2_min_arm_angle = p2_mean_arm_angle - p2_std_arm_angle;
+        p2_max_arm_angle = p2_mean_arm_angle + p2_std_arm_angle;
+        i = together_index - 1;
+
+        while ((p1_min_arm_angle < people.arm_angle(i, 1) && people.arm_angle(i, 1) < p1_max_arm_angle) && (p1_mean_width < people.bound(i, 3)) && i >= ilk_frame)
+            p1_motion_starting_index = i - 1;
+            i = i - 1;
+            if i == 1; break; end
+        end
+        if p1_motion_starting_index ~= 0
+            p1_motion_starting_state = true;
+        end
+        i = together_index - 1;
+        while ((p2_min_arm_angle < people.arm_angle(i, 2) && people.arm_angle(i, 2) < p2_max_arm_angle) && (p2_mean_width < people.bound(i, 7)) && i >= ilk_frame)
+            p2_motion_starting_index = i - 1;
+            i = i - 1;
+            if i == 1; break; end
+        end
+        if p2_motion_starting_index ~= 0
+            p2_motion_starting_state = true;
         end
     end
 
     % p1 and p2 together motion ?
     % p1 ve p2 birlikte hareketi sýrasýnda geniþliklerinde
     % büyüme küçülme %70 oranýnda oluyorsa yakala
+    LIKE = 70;
     together_motion_state = false;
-    if together_state || untogether_state ||  unique(people.count) == 1
+    if together_state || untogether_state ||  people.count(:, 1) == 1 || people.count(:, 2) == 1
         if together_state == false
             together_index = 1;
         end
         if untogether_state == false
             untogether_index = N;
         end
-        motion_width = [];
-        for i = together_index+1:untogether_index
-             motion_width(end + 1) = people.bound(i, 3);
-        end
+        % birlikte iken geniþlik ne kadar ?
+        motion_width = people.bound(together_index+1:untogether_index, 3);
         if motion_width
-            start = motion_width(1:round(length(motion_width)/2));
-            stop = motion_width(round(length(motion_width)/2):end);
+            start = motion_width(1:round(length(motion_width) / 2));
+            stop = motion_width(round(length(motion_width) / 2):end);
 
             start_like = 0;
             reverse_start = wrev(sort(start));
             for i = 1:length(start)
                 if start(i) == reverse_start(i)
-                    start_like = start_like + (100/length(start));
+                    start_like = start_like + (100 / length(start));
                 end
             end
             stop_like = 0;
             sort_stop = sort(stop);
             for i = 1:length(stop)
                 if stop(i) == sort_stop(i)
-                    stop_like = stop_like + (100/length(stop));
+                    stop_like = stop_like + (100 / length(stop));
                 end
             end
-            if stop_like > 70 && start_like > 70 % benzerlik oranlarý
+            if stop_like > LIKE && start_like > LIKE % benzerlik oranlarý
                 together_motion_state = true;
             end
         end
     end
 
+    % p1 bounding_box and motion ending ?
+    % p2 hamle yaptýysa, p1 sendeliyor mu ?
+    p2_motion_ending_index = 0;
+    p2_motion_ending_state = false;
+    p2_mean_width = mean(people.bound(find(people.bound(:, 7) ~= 0), 7));
+    if untogether_state && p2_motion_starting_state
+        for i = untogether_index:N
+            if p2_mean_width < people.bound(i, 7) && people.count(i, 1) == 1
+                p2_motion_ending_index = i;
+            end
+        end
+        if p2_motion_ending_index ~= 0
+            p2_motion_ending_state = true;
+        end
+    end    
+
+    % p1 bounding_box and motion ending ?
+    % p1 hamle yaptýysa, p2 sendeliyor mu ?
+    p1_motion_ending_index = 0;
+    p1_motion_ending_state = false;
+    p1_mean_width = mean(people.bound(find(people.bound(:, 3) ~= 0 & people.bound(:, 7) ~= 0), 3));
+    if untogether_state && p1_motion_starting_state
+        for i = untogether_index:N
+            if p1_mean_width < people.bound(i, 3) && people.count(i, 2) == 1
+                p1_motion_ending_index = i;
+            end
+        end
+        if p1_motion_ending_index ~= 0
+            p1_motion_ending_state = true;
+        end
+    end
+
     percent = 0;
-    if motion_starting_state
-        fprintf('- p1 biþiler yapmaya baþladý:%d\n', motion_starting_index);
-        frame_no = ilk_frame+motion_starting_index;
-        figure(frame_no), imshow(imread(strcat('frames\frame', num2str(frame_no), '.jpg')));
+    if p1_motion_starting_state
+        frame_no = p1_motion_starting_index;
+        fprintf('- p1 biþiler yapmaya baþladý:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
+        percent = percent + 35;
+    end
+    if p2_motion_starting_state
+        frame_no = p2_motion_starting_index;
+        fprintf('- p2 biþiler yapmaya baþladý:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
         percent = percent + 35;
     end
     if together_state
-        fprintf('- birlikte oldular:%d\n', together_index);
-        frame_no = ilk_frame+together_index;
-        figure(frame_no), imshow(imread(strcat('frames\frame', num2str(frame_no), '.jpg')));
+        frame_no = together_index;
+        fprintf('- birlikte oldular:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
         percent = percent + 10;
     end
     if together_motion_state
@@ -210,15 +335,21 @@ function [people] = motion_detection
         percent = percent + 20;
     end
     if untogether_state
-        fprintf('- ayrýldýlar:%d\n', untogether_index);
-        frame_no = ilk_frame+untogether_index;
-        figure(frame_no), imshow(imread(strcat('frames\frame', num2str(frame_no), '.jpg')));
+        frame_no = untogether_index;
+        fprintf('- ayrýldýlar:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
         percent = percent + 10;
     end
-    if motion_ending_state
-        fprintf('- p2ye biþiler oldu:%d\n', motion_ending_index);
-        frame_no = ilk_frame+motion_ending_index;
-        figure(frame_no), imshow(imread(strcat('frames\frame', num2str(frame_no), '.jpg')));
+    if p2_motion_ending_state
+        frame_no = p2_motion_ending_index;
+        fprintf('- p1e biþiler oldu:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
+        percent = percent + 25;
+    end    
+    if p1_motion_ending_state
+        frame_no = p1_motion_ending_index;
+        fprintf('- p2e biþiler oldu:%d\n', frame_no);
+        figure(frame_no), imshow(I{frame_no});
         percent = percent + 25;
     end
     fprintf('> itme durumu: |%% %d|\n', percent);

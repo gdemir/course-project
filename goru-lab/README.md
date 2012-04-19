@@ -9,7 +9,7 @@
 
 arkaplan:
 
-	video: 002.mpg
+	video: 001-002.mpg
 
 	ortalama: mn.jpg
 
@@ -17,15 +17,12 @@ arkaplan:
 
 onplan:
 
-	video: 006.mpg
+	video: 003-010.mpg
 
 betik:
 
-	bg_model: arkaplan ortalamas¿ ve standart sapmas¿ döner.
+	bg_model:
 
-	bg_remove: bg_model'in ç¿kt¿lar¿n¿ kullanarak 006.mpgden
-		insanlar¿n belli oldu¿u siyah beyaz frameleri
-		"frames" dizinine ç¿kart¿r.
+	bg_remove:
 
-	motion_detection: bg_remove'in ç¿kard¿¿¿ "frames" dizinindeki
-		framlerden belli bir kesiti al¿p buna yorum yapar.
+	motion_detection:

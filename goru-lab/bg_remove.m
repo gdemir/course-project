@@ -1,36 +1,37 @@
-function I = bg_remove(fg, bg)
+function bw = bg_remove(fg, mn, st)
     % Example using:   bg_remove('006.mpg', '002.mpg')
 
-    [mn st] = bg_model(bg);
-
+    % [mn st] = bg_model(bg);
     reader = mmreader(fg);                  % videoyu framelerine ayýrmak için okuma deðiþkenine ata
     N = get(reader, 'numberOfFrames') - 1;  % video içerisinde kaç frame olduðunu ata
     frames = read(reader, [1, N]);          % videonun N adet frameni oku ve ata
-    dir_name = 'frames';                   % framelerin kayýdolacaðý dizin ismi
-    mkdir(dir_name);                        % framelerin kayýdolacaðý dizini oluþtur
-    rmdir(dir_name,'s');
-    mkdir(dir_name);                        % framelerin kayýdolacaðý dizini oluþtur
 
     [R, C, L] = size(frames(:, :, :, 1));   % frameler için satýr ve sütun sayýlarýný al (R=satýr sayýsý ve C=sütun sayýsý olarak ata)
 
-    I = uint8([]);
+    k = 26;
     for i = 1 : N
-        I(:, :, 1) = abs(double(frames(:, :, 1, i)) - double(mn(:, :, 1))); % her framenin kýrmýzý deðerlerinin ortalama kýrmýzý deðerlerden farkýný al
-        I(:, :, 2) = abs(double(frames(:, :, 2, i)) - double(mn(:, :, 2))); % her framenin yeþil deðerlerinin ortalama yeþil deðerlerden farkýný al
-        I(:, :, 3) = abs(double(frames(:, :, 3, i)) - double(mn(:, :, 3))); % her framenin mavi deðerlerinin ortalama mavi deðerlerden farkýný al
-        Y = zeros(R, C);
-        Y(I(:, :, 2) >= 15 * st(:, :, 2)) = 1;
+        F1 = double(mn(:, :, 1)) - k*st(:, :, 1); % her framenin kýrmýzý deðerlerinin ortalama kýrmýzý deðerlerden farkýný al
+        T1 = double(mn(:, :, 1)) + k*st(:, :, 1); % her framenin kýrmýzý deðerlerinin ortalama kýrmýzý deðerlerden farkýný al        
+        F2 = double(mn(:, :, 2)) - k*st(:, :, 2); % her framenin yeþil deðerlerinin ortalama yeþil deðerlerden farkýný al
+        T2 = double(mn(:, :, 2)) + k*st(:, :, 2); % her framenin yeþil deðerlerinin ortalama yeþil deðerlerden farkýný al
+        F3 = double(mn(:, :, 3)) - st(:, :, 3); % her framenin mavi deðerlerinin ortalama mavi deðerlerden farkýný al
+        T3 = double(mn(:, :, 3)) + st(:, :, 3); % her framenin mavi deðerlerinin ortalama mavi deðerlerden farkýný al
 
-        se = strel('disk', 7);
+        Y = ones(R, C);
+        P1 = frames(:, :, 1, i);
+        P2 = frames(:, :, 2, i);
+        P3 = frames(:, :, 3, i);
+
+        Y((T1 >= P1 & P1 >= F1) & (T2 >= P2 & P2 >= F2)) = 0;
+
+        se = strel('disk', 5);
         Y = imopen(Y, se);
         Y = imclose(Y, se);
 
         label = bwlabel(Y);
         s = regionprops(label, 'Area');
-        id = find([s.Area] > 1000);
+        id = find([s.Area] > 900);
         Y = ismember(label, id);
-
-        frame_name = strcat(dir_name, '\frame', num2str(i), '.jpg'); % frame ismi ata
-        imwrite(Y, frame_name, 'jpg');                              % frame kaydet
+        bw{i} = Y;
     end
 end

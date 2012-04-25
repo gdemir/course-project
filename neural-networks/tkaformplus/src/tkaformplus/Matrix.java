@@ -50,8 +50,10 @@ public class Matrix {
         
         io_elements.add(input_elements);
         io_elements.add(output_elements);
-        System.out.println("inputs" + input_elements);
-        System.out.println("outputs" + output_elements);
+
+        System.out.println("file reading...(" + filename + ")");
+        System.out.println("inputs: " + input_elements);
+        System.out.println("outputs: " + output_elements);
         in.close();
 
         return io_elements;
@@ -81,6 +83,9 @@ public class Matrix {
         io_elements.add(input_elements);
         io_elements.add(output_elements);
 
+        System.out.println("text reading...");
+        System.out.println("inputs: " + input_elements);
+        System.out.println("outputs: " + output_elements);
         return io_elements;
     }
     public static void main(String[] args) {

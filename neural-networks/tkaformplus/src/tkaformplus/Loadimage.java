@@ -18,7 +18,7 @@ public class Loadimage extends Component {
     public void paint(Graphics g) {  
         g.drawImage(img, 0, 0, null);  
     }  
-  
+
     public Loadimage() {  
        try {  
            img = ImageIO.read(new File("chart.jpg"));  

@@ -10,12 +10,13 @@
  */
 package tkaformplus;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,27 +30,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
 /**
  *
  * @author gdemir
  */
 public class tkaframe extends javax.swing.JFrame {
-    List<List> output = new ArrayList<List>();
-    public List<List> io_elements = new ArrayList<List>();
-    public List<List> input_elements = new ArrayList<List>();
-    public List<Double> output_elements = new ArrayList<Double>();
-    private static List<Double> errors = new ArrayList<Double>();
-    JFrame frame = new JFrame();
+    Boolean errorgraph = false;
+
+    public List<List> train_io_elements = new ArrayList<List>();
+    public List<List> train_input_elements = new ArrayList<List>();
+    public List<Double> train_output_elements = new ArrayList<Double>();
+
+    public List<List> test_io_elements = new ArrayList<List>();
+    public List<List> test_input_elements = new ArrayList<List>();
+    public List<Double> test_output_elements = new ArrayList<Double>();
+
+    ICanvas iCanvas;
+
+    Perceptron perceptron;
+    Adaline adaline;
+    Backpropagation backpropagation;
+    Lvq lvq;
 
     /** Creates new form tkaframe */
     public tkaframe() {
         initComponents();
-        redirectSystemStreams();
+        redirectSystemStreams();       
     }
-
+ 
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -69,29 +78,52 @@ public class tkaframe extends javax.swing.JFrame {
         trainset = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
         testset = new javax.swing.JTextArea();
-        inputcount = new javax.swing.JTextField();
-        labelinputcount = new javax.swing.JLabel();
-        hiddencount = new javax.swing.JTextField();
-        labelhiddencount = new javax.swing.JLabel();
-        graph = new javax.swing.JButton();
+        inputdimension = new javax.swing.JTextField();
+        labelinputdimension = new javax.swing.JLabel();
+        layercount = new javax.swing.JTextField();
+        labellayercount = new javax.swing.JLabel();
         comboboxtestset = new javax.swing.JComboBox();
         comboboxtrainset = new javax.swing.JComboBox();
+        labelcomboboxtrainset = new javax.swing.JLabel();
+        labelcomboboxtestset = new javax.swing.JLabel();
+        labelalgorithm = new javax.swing.JLabel();
+        loadtrainset = new javax.swing.JButton();
+        loadtestset = new javax.swing.JButton();
+        init = new javax.swing.JButton();
+        error = new javax.swing.JTextField();
+        labelerror = new javax.swing.JLabel();
+        delaytime = new javax.swing.JTextField();
+        labeldelaytime = new javax.swing.JLabel();
+        comboboxerrorgraph = new javax.swing.JComboBox();
+        labelerrorgraph = new javax.swing.JLabel();
         labeltrainset = new javax.swing.JLabel();
         labeltestset = new javax.swing.JLabel();
-        labelalgorithm = new javax.swing.JLabel();
+        labelconsole = new javax.swing.JLabel();
+        epochmax = new javax.swing.JTextField();
+        labelepochmax = new javax.swing.JLabel();
         menu = new javax.swing.JMenuBar();
         file = new javax.swing.JMenu();
         opentrainfile = new javax.swing.JMenuItem();
         opentestfile = new javax.swing.JMenuItem();
         exit = new javax.swing.JMenuItem();
+        help = new javax.swing.JMenu();
+        helpcontent = new javax.swing.JMenuItem();
+        about = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Neural Network Algorithms");
+        setFont(new java.awt.Font("Comic Sans MS", 0, 10));
 
         textarea.setColumns(20);
         textarea.setRows(5);
         jScrollPane1.setViewportView(textarea);
 
-        comboboxalgorithm.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+        comboboxalgorithm.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation", "lvq" }));
+        comboboxalgorithm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboboxalgorithmActionPerformed(evt);
+            }
+        });
 
         train.setText("train");
         train.addActionListener(new java.awt.event.ActionListener() {
@@ -122,33 +154,71 @@ public class tkaframe extends javax.swing.JFrame {
         testset.setRows(5);
         jScrollPane3.setViewportView(testset);
 
-        labelinputcount.setText("input count");
+        inputdimension.setText("2");
 
-        hiddencount.setText("0");
-        hiddencount.addActionListener(new java.awt.event.ActionListener() {
+        labelinputdimension.setText("input dimension");
+
+        layercount.setText("0");
+        layercount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hiddencountActionPerformed(evt);
+                layercountActionPerformed(evt);
             }
         });
 
-        labelhiddencount.setText("hidden count");
+        labellayercount.setText("layer count");
 
-        graph.setText("error");
-        graph.addActionListener(new java.awt.event.ActionListener() {
+        comboboxtestset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq" }));
+
+        comboboxtrainset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq" }));
+
+        labelcomboboxtrainset.setText("train set");
+
+        labelcomboboxtestset.setText("test set");
+
+        labelalgorithm.setText("algorithm");
+
+        loadtrainset.setText("load");
+        loadtrainset.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                graphActionPerformed(evt);
+                loadtrainsetActionPerformed(evt);
             }
         });
 
-        comboboxtestset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+        loadtestset.setText("load");
+        loadtestset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadtestsetActionPerformed(evt);
+            }
+        });
 
-        comboboxtrainset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation" }));
+        init.setText("init");
+        init.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                initActionPerformed(evt);
+            }
+        });
+
+        error.setText("0.5");
+
+        labelerror.setText("error");
+
+        delaytime.setText("100");
+
+        labeldelaytime.setText("delay time");
+
+        comboboxerrorgraph.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "true", "false" }));
+
+        labelerrorgraph.setText("error graph");
 
         labeltrainset.setText("train set");
 
-        labeltestset.setText("test set");
+        labeltestset.setText("train set");
 
-        labelalgorithm.setText("algorithm");
+        labelconsole.setText("console");
+
+        epochmax.setText("32000");
+
+        labelepochmax.setText("epoch max");
 
         file.setText("File");
 
@@ -170,7 +240,6 @@ public class tkaframe extends javax.swing.JFrame {
         });
         file.add(opentestfile);
 
-        exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
         exit.setText("Exit");
         exit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -180,6 +249,23 @@ public class tkaframe extends javax.swing.JFrame {
         file.add(exit);
 
         menu.add(file);
+
+        help.setText("Help");
+
+        helpcontent.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.CTRL_MASK));
+        helpcontent.setText("Help");
+        help.add(helpcontent);
+
+        about.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+        about.setText("About");
+        about.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutActionPerformed(evt);
+            }
+        });
+        help.add(about);
+
+        menu.add(help);
 
         setJMenuBar(menu);
 
@@ -192,84 +278,119 @@ public class tkaframe extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelinputcount)
-                            .addComponent(labelhiddencount))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(labelinputdimension, javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(labelerrorgraph))
+                                    .addComponent(labeldelaytime)
+                                    .addComponent(labellayercount)
+                                    .addComponent(labelerror)
+                                    .addComponent(labelepochmax))
+                                .addGap(10, 10, 10)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboboxerrorgraph, 0, 236, Short.MAX_VALUE)
+                                    .addComponent(error, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                                    .addComponent(layercount, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                                    .addComponent(epochmax, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                                    .addComponent(delaytime, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+                                    .addComponent(inputdimension, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
+                            .addComponent(labeltestset)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))
+                        .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(hiddencount, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
-                            .addComponent(inputcount, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(train, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(test, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(clear, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(graph, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 494, Short.MAX_VALUE)
+                            .addComponent(labelconsole)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(labelalgorithm)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(labeltestset)
-                                        .addGap(3, 3, 3)))
-                                .addGap(19, 19, 19))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(labeltrainset)
-                                .addGap(18, 18, 18)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(comboboxalgorithm, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(comboboxtestset, javax.swing.GroupLayout.Alignment.TRAILING, 0, 343, Short.MAX_VALUE)
-                            .addComponent(comboboxtrainset, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addGap(3, 3, 3)
+                                        .addComponent(labelcomboboxtestset))
+                                    .addComponent(labelcomboboxtrainset))
+                                .addGap(14, 14, 14)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(comboboxalgorithm, 0, 338, Short.MAX_VALUE)
+                                    .addComponent(comboboxtestset, 0, 338, Short.MAX_VALUE)
+                                    .addComponent(comboboxtrainset, 0, 338, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(train, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(test, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(clear, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(init, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(loadtestset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(loadtrainset, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE))))
+                        .addGap(7, 7, 7))
+                    .addComponent(labeltrainset))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labeltrainset)
+                    .addComponent(labelconsole))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(1, 1, 1)
+                        .addComponent(labeltestset)
+                        .addGap(3, 3, 3)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(labelinputcount)
-                            .addComponent(inputcount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(labelinputdimension)
+                            .addComponent(inputdimension, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(labelhiddencount)
-                            .addComponent(hiddencount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(layercount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labellayercount))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(error, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelerror))
+                        .addGap(8, 8, 8)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(labeldelaytime)
+                            .addComponent(delaytime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(epochmax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelepochmax))
+                        .addGap(4, 4, 4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelerrorgraph)
+                            .addComponent(comboboxerrorgraph, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(comboboxtrainset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(loadtrainset)
+                            .addComponent(labelcomboboxtrainset))
+                        .addGap(8, 8, 8)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(comboboxtestset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(loadtestset)
+                            .addComponent(labelcomboboxtestset))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(comboboxtrainset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(labeltrainset))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(comboboxtestset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(labeltestset))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(comboboxalgorithm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(labelalgorithm))
-                        .addGap(11, 11, 11)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(comboboxalgorithm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(labelalgorithm))
+                            .addComponent(init))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(train)
-                            .addComponent(test)
                             .addComponent(clear)
-                            .addComponent(graph))))
+                            .addComponent(train)
+                            .addComponent(test))))
                 .addContainerGap())
         );
 
@@ -278,15 +399,38 @@ public class tkaframe extends javax.swing.JFrame {
 
     private void trainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainActionPerformed
         try {
-            if ("".equals(trainset.getText())) {
-                String filename = "train_" + comboboxtrainset.getSelectedItem() + ".txt";
-                File files = new File(filename);
-                io_elements = Matrix.fileread(filename, Integer.parseInt(inputcount.getText()));
-                trainset.read( new FileReader( files.getAbsolutePath() ), null );
+            if (iCanvas.train) {
+                iCanvas.train = false;
+                train.setLabel("Step");
+                //iCanvas.output = output;
             } else {
-                io_elements = Matrix.textread(trainset.getText(), Integer.parseInt(inputcount.getText()));
+                iCanvas.train = true;
+                train.setLabel("Stop");
             }
-            output = Tkaformplus.main(true, comboboxalgorithm.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), null);
+
+            if (errorgraph) {
+                switch (comboboxalgorithm.getSelectedIndex()) {
+                    case 0: iCanvas.startAnimation(perceptron);     break;
+                    case 1: iCanvas.startAnimation(adaline);        break;
+                    case 2: iCanvas.startAnimation(backpropagation);break;
+                    case 3: iCanvas.startAnimation(lvq);            break;
+                    default: System.out.print("wtf?!");
+                }
+            } else {
+                try {
+                    switch (comboboxalgorithm.getSelectedIndex()) {
+                        case 0: perceptron.train(train_io_elements);      break;
+                        case 1: adaline.train(train_io_elements);         break;
+                        case 2: backpropagation.train(train_io_elements); break;
+                        case 3: lvq.train(train_io_elements);             break;
+                        default:System.out.print("wtf?!");
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        //System.out.print(iCanvas.output);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
@@ -297,79 +441,46 @@ public class tkaframe extends javax.swing.JFrame {
     }//GEN-LAST:event_trainActionPerformed
 
     private void testActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testActionPerformed
-        try {
-             if ("".equals(testset.getText())) {
-                String filename = "test_" + comboboxtestset.getSelectedItem() + ".txt";
-                File files = new File(filename);
-                io_elements = Matrix.fileread(filename, Integer.parseInt(inputcount.getText()));
-                testset.read( new FileReader( files.getAbsolutePath() ), null );
-             } else
-                io_elements = Matrix.textread(testset.getText(), Integer.parseInt(inputcount.getText()));
-            Tkaformplus.main(false, comboboxalgorithm.getSelectedIndex(), io_elements, Integer.parseInt(hiddencount.getText()), output);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+            test_input_elements = test_io_elements.get(0);
+
+            switch (comboboxalgorithm.getSelectedIndex()) {
+            case 0: perceptron.test(test_input_elements);  break;
+            case 1: adaline.test(test_input_elements);     break;
+            case 2: backpropagation.test(Integer.parseInt(layercount.getText()), test_input_elements); break;
+            case 3: lvq.test(test_input_elements); break;
+            default: System.out.print("wtf?!");
+            }
     }//GEN-LAST:event_testActionPerformed
 
     private void clearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearActionPerformed
-    //    Chart.plot(null);
-        textarea.setText("");
-        trainset.setText("");
-        testset.setText("");
-        final int height = 300;
-        final int width = 300;
-        final int slide = 10;
+        Confirm ask = new Confirm(new Frame(), true, "Are you sure ?");
+        ask.show();
+        if (Confirm.answer == Confirm.OK) {
+            train_io_elements = new ArrayList<List>();
+            train_input_elements = new ArrayList<List>();
+            train_output_elements = new ArrayList<Double>();
+            test_io_elements = new ArrayList<List>();
+            test_input_elements = new ArrayList<List>();
 
-        frame.getContentPane().setBackground(Color.CYAN);
-        frame.setTitle("kordinatlar");
-        frame.setSize(width+5*slide, height+5*slide);
-
-        JPanel jp = new JPanel() {
-            @Override
-            public void paintComponent( Graphics g ) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D)g;
-
-                Line2D linex, liney, line;
-
-                linex = new Line2D.Double(0+slide, 0+slide, 0+slide, height-slide);
-                for (int i = 0; i < height; i++)
-                  g.drawString("hop-", 0, height-i*15);
-                for (int i = 0; i < width; i++)
-                  g.drawString("top-", i*15, height);
-                liney = new Line2D.Double(0+slide, height-slide, width-slide, height-slide);
-                line = new Line2D.Double(10+slide, 10+slide, 40, 40);
-
-                //g2.setColor(Color.red);
-                g2.setStroke(new BasicStroke(1));
-                g2.setBackground(Color.black);
-
-                g2.draw(linex);
-                g2.draw(liney);
-                g2.draw(line);
-                
-            }            
-        };
-        
-        frame.add(jp);
-        frame.setVisible( true );
+            textarea.setText("");
+            trainset.setText("");
+            testset.setText("");
+        }
     }//GEN-LAST:event_clearActionPerformed
-    
+
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
         System.exit(1);        
 }//GEN-LAST:event_exitActionPerformed
 
     private void opentrainfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opentrainfileActionPerformed
+        
         final JFileChooser filechooser = new JFileChooser();
         int returnVal = filechooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File files = filechooser.getSelectedFile();
             try {
-                io_elements = Matrix.fileread(filechooser.getName(files), Integer.parseInt(inputcount.getText()));
+                train_io_elements = Matrix.fileread(filechooser.getName(files), Integer.parseInt(inputdimension.getText()));
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
             } catch (FileNotFoundException ex) {
@@ -377,8 +488,8 @@ public class tkaframe extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
             }
-            input_elements = io_elements.get(0);
-            output_elements = io_elements.get(1);
+            train_input_elements = train_io_elements.get(0);
+            train_output_elements = train_io_elements.get(1);
             try {
               // What to do with the file, e.g. display it in a TextArea
               trainset.read( new FileReader( files.getAbsolutePath() ), null );
@@ -396,7 +507,7 @@ public class tkaframe extends javax.swing.JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File files = filechooser.getSelectedFile();
             try {
-                io_elements = Matrix.fileread(filechooser.getName(files), Integer.parseInt(inputcount.getText()));
+                test_io_elements = Matrix.fileread(filechooser.getName(files), Integer.parseInt(inputdimension.getText()));
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
             } catch (FileNotFoundException ex) {
@@ -404,8 +515,8 @@ public class tkaframe extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
             }
-            input_elements = io_elements.get(0);
-            output_elements = io_elements.get(1);
+            test_input_elements = test_io_elements.get(0);
+            test_output_elements = test_io_elements.get(1);
             try {
               // What to do with the file, e.g. display it in a TextArea
               testset.read( new FileReader( files.getAbsolutePath() ), null );
@@ -417,28 +528,163 @@ public class tkaframe extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_opentestfileActionPerformed
 
-    private void graphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_graphActionPerformed
-        JFrame f = new JFrame("Load Image Sample");  
-        f.add(new Loadimage());  
-        f.pack();
-        f.setVisible(true);
-    }//GEN-LAST:event_graphActionPerformed
-
-    private void hiddencountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hiddencountActionPerformed
+    private void layercountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_layercountActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_hiddencountActionPerformed
+    }//GEN-LAST:event_layercountActionPerformed
+
+    private void loadtrainsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadtrainsetActionPerformed
+        try {
+            String filename = "train_" + comboboxtrainset.getSelectedItem() + ".txt";
+            File files = new File(filename);
+            train_io_elements = Matrix.fileread(filename, Integer.parseInt(inputdimension.getText()));
+            trainset.read( new FileReader( files.getAbsolutePath() ), null );
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_loadtrainsetActionPerformed
+
+    private void loadtestsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadtestsetActionPerformed
+        try {
+            String filename = "test_" + comboboxtestset.getSelectedItem() + ".txt";
+            File files = new File(filename);
+            test_io_elements = Matrix.fileread(filename, Integer.parseInt(inputdimension.getText()));
+            testset.read( new FileReader( files.getAbsolutePath() ), null );
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_loadtestsetActionPerformed
+
+    private void comboboxalgorithmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxalgorithmActionPerformed
+        
+    }//GEN-LAST:event_comboboxalgorithmActionPerformed
+
+    private void initActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_initActionPerformed
+        try {
+            textarea.setText("");
+            iCanvas = new ICanvas();
+            train.setLabel("train");
+
+            switch (comboboxerrorgraph.getSelectedIndex()) {
+                case 0: errorgraph = true; break;
+                case 1: errorgraph = false; break;
+                default: System.out.print("wtf?!");
+            }
+            switch (comboboxalgorithm.getSelectedIndex()) {
+                case 0: perceptron = new Perceptron(Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 1: adaline = new Adaline(Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 2: backpropagation = new Backpropagation(Integer.parseInt(epochmax.getText()), Double.parseDouble(error.getText()), Integer.parseInt(layercount.getText()), Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 3: lvq = new Lvq(Integer.parseInt(epochmax.getText()), Integer.parseInt(layercount.getText()),Integer.parseInt(delaytime.getText()),errorgraph);break;
+                default: System.out.print("wtf?!");
+            }
+
+            if ("".equals(trainset.getText())) {
+                try {
+                    String filename = "train_" + comboboxtrainset.getSelectedItem() + ".txt";
+                    File files = new File(filename);
+                    train_io_elements = Matrix.fileread(filename, Integer.parseInt(inputdimension.getText()));
+                    iCanvas.io_elements = train_io_elements;
+                    trainset.read( new FileReader( files.getAbsolutePath() ), null );
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                try {
+                    train_io_elements = Matrix.textread(trainset.getText(), Integer.parseInt(inputdimension.getText()));
+                    iCanvas.io_elements = train_io_elements;
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if ("".equals(testset.getText())) {
+                try {
+                    String filename = "test_" + comboboxtestset.getSelectedItem() + ".txt";
+                    File files = new File(filename);
+                    test_io_elements = Matrix.fileread(filename, Integer.parseInt(inputdimension.getText()));
+                    testset.read( new FileReader( files.getAbsolutePath() ), null );
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else                
+                try {
+                    test_io_elements = Matrix.textread(testset.getText(), Integer.parseInt(inputdimension.getText()));
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(tkaframe.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_initActionPerformed
+
+    private void aboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutActionPerformed
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame frame = new JFrame();
+        frame.getContentPane().setBackground(Color.WHITE);
+        frame.setTitle("about");
+
+        Panel textpanel = new Panel();
+	textpanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+	textpanel.add(new Label("Neural Networks"));
+        frame.add("North", textpanel);
+
+        String[] algorithm = {"- Perceptron", "- Adaline", "- Backpropagation", "- lvq"};
+
+        textpanel = new Panel();
+        for (int i = 0; i < algorithm.length; i++) {
+            textpanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+            textpanel.add(new Label(algorithm[i]));
+            frame.add(textpanel);
+        }
+        String line;
+        line = "--------------------------------------------------------------------------------";
+        textpanel.add(new Label(line));
+
+        textpanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        textpanel.add(new Label("Ondokuz Mayıs Üniversitesi | Bilgisayar Mühendisliği © 2012"));
+        frame.add(textpanel);
+
+        textpanel = new Panel();
+        textpanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        textpanel.add(new Label("Gökhan DEMİR | http://gdemir.me"));
+        frame.add("South", textpanel);
+
+        frame.setSize(400, 200);
+        frame.setLocation(Math.abs((dimension.width-frame.getSize().width)/2),0);
+        frame.setVisible(true);
+    }//GEN-LAST:event_aboutActionPerformed
  
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             @Override
             public void run() {
-                new tkaframe().setVisible(true);
+                new tkaframe().setVisible(true);   
             }
-
         });
     }
 
@@ -446,15 +692,7 @@ public class tkaframe extends javax.swing.JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                String[] error;
-                error = text.split("error:");
-                if (error.length == 1)
-                    textarea.append(text);
-                else {
-                    errors.add(Double.parseDouble(error[1]));
-                    //Chart.plot(errors);
-                    //f.add(new Loadimage());  
-                }
+                textarea.append(text);
             }
         });
     }
@@ -482,23 +720,39 @@ public class tkaframe extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem about;
     private javax.swing.JButton clear;
     private javax.swing.JComboBox comboboxalgorithm;
+    private javax.swing.JComboBox comboboxerrorgraph;
     private javax.swing.JComboBox comboboxtestset;
     private javax.swing.JComboBox comboboxtrainset;
+    private javax.swing.JTextField delaytime;
+    private javax.swing.JTextField epochmax;
+    private javax.swing.JTextField error;
     private javax.swing.JMenuItem exit;
     private javax.swing.JMenu file;
-    private javax.swing.JButton graph;
-    private javax.swing.JTextField hiddencount;
-    private javax.swing.JTextField inputcount;
+    private javax.swing.JMenu help;
+    private javax.swing.JMenuItem helpcontent;
+    private javax.swing.JButton init;
+    private javax.swing.JTextField inputdimension;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel labelalgorithm;
-    private javax.swing.JLabel labelhiddencount;
-    private javax.swing.JLabel labelinputcount;
+    private javax.swing.JLabel labelcomboboxtestset;
+    private javax.swing.JLabel labelcomboboxtrainset;
+    private javax.swing.JLabel labelconsole;
+    private javax.swing.JLabel labeldelaytime;
+    private javax.swing.JLabel labelepochmax;
+    private javax.swing.JLabel labelerror;
+    private javax.swing.JLabel labelerrorgraph;
+    private javax.swing.JLabel labelinputdimension;
+    private javax.swing.JLabel labellayercount;
     private javax.swing.JLabel labeltestset;
     private javax.swing.JLabel labeltrainset;
+    private javax.swing.JTextField layercount;
+    private javax.swing.JButton loadtestset;
+    private javax.swing.JButton loadtrainset;
     private javax.swing.JMenuBar menu;
     private javax.swing.JMenuItem opentestfile;
     private javax.swing.JMenuItem opentrainfile;

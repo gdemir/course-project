@@ -1,19 +1,15 @@
 ### HAZIRLAYANLAR
 
-- Gökhan Demir http://gdemir.me
+- GÃ¶khan Demir | http://gdemir.me
 - Erol Uslu
 - Merve Ceylan
-- Yunus Ateþ
+- Yunus AteÅŸ
 
-### AÇIKLAMA
+### AÃ‡IKLAMA
 
 arkaplan:
 
 	video: 001-002.mpg
-
-	ortalama: mn.jpg
-
-	standart_sapma: st.jpg
 
 onplan:
 
@@ -21,8 +17,8 @@ onplan:
 
 betik:
 
-	bg_model:
+	bg_model: #TODO
 
-	bg_remove:
+	bg_remove: #TODO
 
-	motion_detection:
+	motion_detection: #TODO

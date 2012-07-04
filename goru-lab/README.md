@@ -5,7 +5,9 @@
 - Merve Ceylan
 - Yunus Ateş
 
-### AÇIKLAMA
+### KOD
+
+#### AÇIKLAMA
 
 - bg_model:
 
@@ -22,4 +24,21 @@ bg_remove'dan gelen bw(siyah beyaz) frame cell'ini(hücresini) yorumlarayarak it
 
 ### VİDEO VE BİLDİRİ
 
-Videolar ve bildiri için [tıklayınız](http://github.com/19bal/cv-asset/tree/master/03-itme)
+#### BİLDİRİ
+
+Uygulamanın bildirisi için [tıklayınız](http://github.com/19bal/cv-asset/blob/master/03-itme/report.pdf)
+
+#### VİDEO
+
+Uygulamanın gerçeklemesini anlatan
+
+- **Sessiz** video'yu izlemek için [tıklayınız](http://www.youtube.com/watch?v=spZRE8vLLt8)
+- **Sesli** video'yu izlemek için [tıklayınız](http://youtu.be/mu_sFnyK5Ao)
+
+#### AÇIKLAMA
+
+- arkaplan video: 001-002.mpg (kişilerin bulunmadığı videolar)
+- önplan video: 003-010.mpg (kişilerin bulunduğu videolar)
+
+
+

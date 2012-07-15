@@ -52,6 +52,7 @@ public class tkaframe extends javax.swing.JFrame {
     Adaline adaline;
     Backpropagation backpropagation;
     Lvq lvq;
+    Art art;
 
     /** Creates new form tkaframe */
     public tkaframe() {
@@ -118,7 +119,7 @@ public class tkaframe extends javax.swing.JFrame {
         textarea.setRows(5);
         jScrollPane1.setViewportView(textarea);
 
-        comboboxalgorithm.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation", "lvq" }));
+        comboboxalgorithm.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "backpropagation", "lvq", "art" }));
         comboboxalgorithm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboboxalgorithmActionPerformed(evt);
@@ -167,9 +168,9 @@ public class tkaframe extends javax.swing.JFrame {
 
         labellayercount.setText("layer count");
 
-        comboboxtestset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq" }));
+        comboboxtestset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq", "art" }));
 
-        comboboxtrainset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq" }));
+        comboboxtrainset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "perceptron", "adaline", "carpim", "xor", "lvq", "art" }));
 
         labelcomboboxtrainset.setText("train set");
 
@@ -198,7 +199,7 @@ public class tkaframe extends javax.swing.JFrame {
             }
         });
 
-        error.setText("0.5");
+        error.setText("0.06");
 
         labelerror.setText("error");
 
@@ -212,11 +213,11 @@ public class tkaframe extends javax.swing.JFrame {
 
         labeltrainset.setText("train set");
 
-        labeltestset.setText("train set");
+        labeltestset.setText("test set");
 
         labelconsole.setText("console");
 
-        epochmax.setText("32000");
+        epochmax.setText("100");
 
         labelepochmax.setText("epoch max");
 
@@ -414,6 +415,7 @@ public class tkaframe extends javax.swing.JFrame {
                     case 1: iCanvas.startAnimation(adaline);        break;
                     case 2: iCanvas.startAnimation(backpropagation);break;
                     case 3: iCanvas.startAnimation(lvq);            break;
+                    case 4: iCanvas.startAnimation(art);            break;
                     default: System.out.print("wtf?!");
                 }
             } else {
@@ -423,6 +425,7 @@ public class tkaframe extends javax.swing.JFrame {
                         case 1: adaline.train(train_io_elements);         break;
                         case 2: backpropagation.train(train_io_elements); break;
                         case 3: lvq.train(train_io_elements);             break;
+                        case 4: art.train(train_io_elements);             break;
                         default:System.out.print("wtf?!");
                     }
                 } catch (InterruptedException ex) {
@@ -447,8 +450,9 @@ public class tkaframe extends javax.swing.JFrame {
             switch (comboboxalgorithm.getSelectedIndex()) {
             case 0: perceptron.test(test_input_elements);  break;
             case 1: adaline.test(test_input_elements);     break;
-            case 2: backpropagation.test(Integer.parseInt(layercount.getText()), test_input_elements); break;
+            case 2: backpropagation.test(test_input_elements); break;
             case 3: lvq.test(test_input_elements); break;
+            case 4: art.test(test_input_elements); break;
             default: System.out.print("wtf?!");
             }
     }//GEN-LAST:event_testActionPerformed
@@ -578,10 +582,11 @@ public class tkaframe extends javax.swing.JFrame {
                 default: System.out.print("wtf?!");
             }
             switch (comboboxalgorithm.getSelectedIndex()) {
-                case 0: perceptron = new Perceptron(Integer.parseInt(delaytime.getText()), errorgraph);break;
-                case 1: adaline = new Adaline(Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 0: perceptron = new Perceptron(Integer.parseInt(epochmax.getText()), Double.parseDouble(error.getText()), Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 1: adaline = new Adaline(Integer.parseInt(epochmax.getText()), Double.parseDouble(error.getText()), Integer.parseInt(delaytime.getText()), errorgraph);break;
                 case 2: backpropagation = new Backpropagation(Integer.parseInt(epochmax.getText()), Double.parseDouble(error.getText()), Integer.parseInt(layercount.getText()), Integer.parseInt(delaytime.getText()), errorgraph);break;
-                case 3: lvq = new Lvq(Integer.parseInt(epochmax.getText()), Integer.parseInt(layercount.getText()),Integer.parseInt(delaytime.getText()),errorgraph);break;
+                case 3: lvq = new Lvq(Integer.parseInt(epochmax.getText()), Double.parseDouble(error.getText()), Integer.parseInt(layercount.getText()), Integer.parseInt(delaytime.getText()), errorgraph);break;
+                case 4: art = new Art(Integer.parseInt(epochmax.getText()), Integer.parseInt(layercount.getText()));break;
                 default: System.out.print("wtf?!");
             }
 
@@ -650,7 +655,7 @@ public class tkaframe extends javax.swing.JFrame {
 	textpanel.add(new Label("Neural Networks"));
         frame.add("North", textpanel);
 
-        String[] algorithm = {"- Perceptron", "- Adaline", "- Backpropagation", "- lvq"};
+        String[] algorithm = {"- Perceptron", "- Adaline", "- Backpropagation", "- Lvq", "- Art"};
 
         textpanel = new Panel();
         for (int i = 0; i < algorithm.length; i++) {

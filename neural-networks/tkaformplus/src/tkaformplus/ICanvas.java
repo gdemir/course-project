@@ -25,32 +25,34 @@ class ICanvas extends Canvas implements Runnable {
     Adaline adaline = null;
     Backpropagation backpropagation = null;
     Lvq lvq = null;
-
-    List<List> output = null;
+    Art art = null;
 
     public List<List> io_elements;
 
-    public void startAnimation(Lvq back) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        this.lvq = back;
+    public void startAnimation(Art algorithm) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this.art = algorithm;
         start();
     }
-    public void startAnimation(Backpropagation back) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        this.backpropagation = back;
+    public void startAnimation(Lvq algorithm) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this.lvq = algorithm;
         start();
     }
-    public void startAnimation(Adaline back) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        this.adaline = back;
+    public void startAnimation(Backpropagation algorithm) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this.backpropagation = algorithm;
         start();
     }
-    public void startAnimation(Perceptron back) throws UnsupportedEncodingException, FileNotFoundException, IOException {
-        this.perceptron = back;
+    public void startAnimation(Adaline algorithm) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this.adaline = algorithm;
+        start();
+    }
+    public void startAnimation(Perceptron algorithm) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        this.perceptron = algorithm;
         start();
     }
     public void start() {
         Thread th  = new Thread(this);
-       // th.setPriority(Thread.MIN_PRIORITY);
+        // th.setPriority(Thread.MIN_PRIORITY);
         th.start();
-        
     }
     @Override
     public void run() {
@@ -64,11 +66,11 @@ class ICanvas extends Canvas implements Runnable {
                if (this.adaline != null)         error = this.adaline.train(io_elements);
                if (this.backpropagation != null) error = this.backpropagation.train(io_elements);
                if (this.lvq != null)             error = this.lvq.train(io_elements);
+               if (this.art != null)             error = this.art.train(io_elements);
                
                if (!error) break; // hata yok ise kır çık
             } catch (InterruptedException ex) {
                 Logger.getLogger(ICanvas.class.getName()).log(Level.SEVERE, null, ex);
-            //nichts
          }
       }
     }
@@ -81,7 +83,8 @@ class ICanvas extends Canvas implements Runnable {
         perceptron = null;
         adaline = null;
         backpropagation = null;
+        lvq = null;
+        art = null;
 
-        output = null;
     }
 }

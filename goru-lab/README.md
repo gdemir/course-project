@@ -1,11 +1,13 @@
-### HAZIRLAYANLAR
+HAZIRLAYANLAR
+=============
 
 - Gökhan Demir | http://gdemir.me
 - Erol Uslu
 - Merve Ceylan
 - Yunus Ateş
 
-### KOD
+KOD
+---
 
 #### AÇIKLAMA
 
@@ -22,7 +24,8 @@ barındırdığı alanları **1** diğer alanları(arka planı) **0** olarak bw(
 
 bg_remove'dan gelen bw(siyah beyaz) frame cell'ini(hücresini) yorumlarayarak itme olup olmadığını söyler.
 
-### VİDEO VE BİLDİRİ
+VİDEO VE BİLDİRİ
+----------------
 
 #### BİLDİRİ
 
@@ -39,6 +42,3 @@ Uygulamanın gerçeklemesini anlatan
 
 - arkaplan video: 001-002.mpg (kişilerin bulunmadığı videolar)
 - önplan video: 003-010.mpg (kişilerin bulunduğu videolar)
-
-
-

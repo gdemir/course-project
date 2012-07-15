@@ -22,23 +22,25 @@ import javax.swing.JPanel;
  */
 public class Adaline extends Applet {
 
-    /**
-     * @param args the command line arguments
-     */
     public boolean errorgraph = true;
-    
+
     // error kordinat çizimleri için
     JFrame frame;
     JPanel jp;
     BufferedImage image;
-    
+
+    private static double E = 0.01;                 // hata için
     private static List<Double> weight = new ArrayList<Double>();
     private static List<Double> errors = new ArrayList<Double>();
     private static double learningrate = 0.5;
     private static double bias = -1;
     private static int delaytime = 100;
+    private static int epochmax = Integer.MAX_VALUE;
+    public List<Double> Y = new ArrayList<Double>();
 
-    public Adaline(int dtime, boolean egraph) throws InterruptedException {
+    public Adaline(int emax, double error, int dtime, boolean egraph) throws InterruptedException {
+        epochmax = emax;
+        E = error;
         delaytime = dtime;
         // Graph init begin
         if (egraph) {
@@ -47,8 +49,93 @@ public class Adaline extends Applet {
         // Graph end
         errorgraph = egraph;
 
-        weight = new ArrayList<Double>();
         errors = new ArrayList<Double>();
+
+        weight = new ArrayList<Double>();
+        Y = new ArrayList<Double>();
+    }
+    private void initweight(int column) {
+        
+        for (int i = 0; i < column; i++) weight.add(1 + Math.random());
+    }
+    private void initoutput(int row){
+        for (int i = 0; i < row; i++) Y.add(0.0);
+    }
+
+    public boolean train(List<List> io_elements) throws InterruptedException {
+        System.out.println("Adaline#train");
+
+        List<List> input_elements = io_elements.get(0);
+        List<Double> output_elements = io_elements.get(1);
+        int row = input_elements.size();
+        int column = input_elements.get(0).size();
+
+        initweight(column);
+        initoutput(row);
+
+        double target, error = 0;
+        int i = 0, iteration = 0, epoch = 0;
+        boolean error_state = false;
+
+        do {
+            epoch++;
+            for (i = 0; i < row; i++){
+                iteration++;
+                target = process(input_elements.get(i));
+                Y.set(i, target);
+                //System.out.println(iteration + ". iterasyon: Target: " + target + " weight: " + weight);
+                if (target != output_elements.get(i)) {
+                    error = (output_elements.get(i) - target);
+                    weight_repair(input_elements.get(i), error);
+                    bias_repair(error);
+                }
+            }
+            error_state = rmse(row, output_elements);
+        } while(error_state && epoch < epochmax);
+        for (i = 0; i < row; i++)
+            System.out.println("Y["+i+"]: " + Y.get(i));
+        System.out.println("epoch: " + epoch);
+        System.out.println("iteration: " + iteration);
+
+        if (error_state)
+            error_state = (epoch == epochmax) ?  false : true;
+        return error_state;
+    }
+    public void test(List<List> input_elements) {
+        System.out.println("Adaline#test");
+        double target;
+        for (int i = 0; i < input_elements.size(); i++) {
+            target = process(input_elements.get(i));
+            System.out.println("Inputs : " + input_elements.get(i)  + " Target: " + target);
+        }
+    }
+    private boolean rmse(int row, List<Double> output_elements) throws InterruptedException {
+        double error = 0.0;
+        for (int i = 0; i < row; i++)
+            error += Math.pow(Y.get(i) - output_elements.get(i), 2);
+        error = Math.sqrt(error / row);
+        errors.add(error);
+        System.out.println("error:" + error);
+         // Graph update begin
+        if (errorgraph) {
+            Errorgraph.update(frame, errors, delaytime);
+        }
+        // Graph end
+        return (error > E) ? true : false;
+    }
+    private double process(List<Double> input_elements) {
+        double net = 0;
+        for (int i = 0; i < input_elements.size(); i++)
+            net += input_elements.get(i) * weight.get(i);
+        net += bias;
+        return (net >= 0) ? 1 : -1;
+    }
+    private void bias_repair(double error) {
+        bias = bias + learningrate * error;
+    }
+    private void weight_repair(List<Double> input_elements, double error) {
+        for (int i = 0; i < weight.size(); i++)
+            weight.set(i, ((double)weight.get(i) + learningrate  * error * input_elements.get(i)));
     }
     public static void main(String[] args) throws InterruptedException {    
         try {
@@ -56,7 +143,7 @@ public class Adaline extends Applet {
             List<List> input_elements = io_elements.get(0);
             List<Double> output_elements = io_elements.get(1);
 
-            Adaline adaline = new Adaline(100, true);
+            Adaline adaline = new Adaline(1000, 0.01, 100, false);
             adaline.train(io_elements);
                 io_elements = Matrix.fileread("test_adaline.txt", 2); // train : 3 column; test : 2 column
                 input_elements = io_elements.get(0);
@@ -71,75 +158,5 @@ public class Adaline extends Applet {
         } catch (IOException ex) {
             Logger.getLogger(Adaline.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    private void initweight(int column) {
-        for (int i = 0; i < column; i++)
-            weight.add(1 + Math.random());
-    }
-
-    public boolean train(List<List> io_elements) throws InterruptedException {
-        System.out.println("Adaline#train");
-
-        List<List> input_elements = io_elements.get(0);
-        List<Double> output_elements = io_elements.get(1);
-        int row = input_elements.size();
-        int column = input_elements.get(0).size();
-
-        initweight(column);
-
-        double target, error, sum_error = 0;
-        int i = 0, iteration = 0, epoch = 0;
-        boolean error_state = false;
-
-        do {
-            error_state = false;
-            epoch++;
-            for (i = 0; i < row; i++){
-                iteration++;
-                target = process(input_elements.get(i), weight);
-                System.out.println(iteration + ". iterasyon: Target: " + target + " weight: " + weight);
-                if (target != output_elements.get(i)) {
-                    error_state = true;
-                    error = (output_elements.get(i) - target);
-                    sum_error += error * error;
-
-                    weight_repair(input_elements.get(i), error);
-                    bias_repair(error);
-
-                    error = Math.sqrt(sum_error / iteration);
-                    errors.add(error);
-                    // Graph update begin
-                    if (errorgraph) {
-                        Errorgraph.update(frame, errors, delaytime);
-                    }
-                }
-            }
-        } while(error_state);
-        System.out.println("epoch: " + epoch);
-        System.out.println("iteration: " + iteration);
-
-        return error_state;
-    }
-    public void test(List<List> input_elements) {
-        System.out.println("Adaline#test");
-        double target;
-        for (int i = 0; i < input_elements.size(); i++) {
-            target = process(input_elements.get(i), weight);
-            System.out.println("Inputs : " + input_elements.get(i)  + " Target: " + target);
-        }
-    }
-    private double process(List<Double> input_elements, List<Double> w) {
-        double net = 0;
-        for (int i = 0; i < input_elements.size(); i++)
-            net += input_elements.get(i) * w.get(i);
-        net += bias;
-        return (net >= 0) ? 1 : -1;
-    }
-    private void bias_repair(double error) {
-        bias = bias + learningrate * error;
-    }
-    private void weight_repair(List<Double> input_elements, double error) {
-        for (int i = 0; i < weight.size(); i++)
-            weight.set(i, ((double)weight.get(i) + learningrate  * error * input_elements.get(i)));
     }
 }

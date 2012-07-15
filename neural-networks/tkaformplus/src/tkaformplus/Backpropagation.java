@@ -18,10 +18,6 @@ import javax.swing.JPanel;
  */
 public class Backpropagation {
 
-    /**
-     * @param args the command line arguments
-     */
-
     public boolean errorgraph = true;
 
     private static List<Double> errors = new ArrayList<Double>();
@@ -37,7 +33,7 @@ public class Backpropagation {
     public List<Double> dweight_output = new ArrayList<Double>();
 
     public List<Double> H = new ArrayList<Double>();
-    public List<Double> Y = new ArrayList<Double>();    
+    public List<Double> Y = new ArrayList<Double>();
     private static List<Double> keynH = new ArrayList<Double>();
     private static double keynY;
 
@@ -85,7 +81,7 @@ public class Backpropagation {
         keynY = 0.0;
     }
 
-    private void init(int row, int column, int hiddencount) {
+    private void init(int row, int column) {
         List<Double> vector, vector2;
         int i, j;
 
@@ -109,32 +105,15 @@ public class Backpropagation {
         bias_output.add(random.nextGaussian()/10);
         dbias_output.add(0.0);
     }
-    public void initoutput(int hiddencount, int row) {
+    public void initoutput(int row) {
         int i;
         for (i = 0; i < hiddencount; i++) H.add(0.0);
         for (i = 0; i < row; i++) Y.add(0.0);
     }
-    public void initkeynh(int hiddencount) {
+    public void initkeynh() {
         for (int i = 0; i < hiddencount; i++)
             keynH.add(0.0);
         keynY = 0.0;
-    }
-    public static void main(String[] args) throws IOException, InterruptedException {
-        int hcount = 3;
-        Backpropagation backpropagation = new Backpropagation(5, 0.05, hcount, 1, true);
-
-        List<List> io_elements = new ArrayList<List>();
-        List<List> input_elements = new ArrayList<List>();
-        List<Double> output_elements = new ArrayList<Double>();
-
-        int column = 2;
-        io_elements = Matrix.fileread("train_xor.txt", column);
-        backpropagation.train(io_elements);
-
-        io_elements = Matrix.fileread("test_xor.txt", column);
-        input_elements = io_elements.get(0);
-
-        backpropagation.test(hiddencount, input_elements);
     }
     public boolean train(List<List> io_elements) throws InterruptedException {
         System.out.println("Backpropagation#train");
@@ -145,41 +124,44 @@ public class Backpropagation {
         int row = input_elements.size();
         int column = input_elements.get(0).size();
 
-        init(row, column, hiddencount);
-        initoutput(hiddencount, row);
-        initkeynh(hiddencount);     // sadece hidden kadar keynh üret
+        init(row, column);
+        initoutput(row);
+        initkeynh();     // sadece hidden kadar keynh üret
 
         int i = 0, epoch = 0;
         boolean error_state = false;
-        do {
 
+        do {
             epoch++;
             for (i = 0; i < row; i++){
-                process(hiddencount, i, input_elements.get(i), column);
-                keyn(hiddencount, i, output_elements);
-                change(hiddencount, i, input_elements, column);
+                process(i, input_elements.get(i), column);
+                keyn(i, output_elements);
+                change(i, input_elements, column);
             }
             error_state = rmse(row, output_elements);
-        } while(error_state && epoch < epochmax);
+        } while (error_state && epoch < epochmax);
         for (i = 0; i < row; i++)
             System.out.println("Y["+i+"]: " + Y.get(i));
         System.out.println("epoch: " + epoch);
         
+        if (error_state)
+            error_state = (epoch == epochmax) ?  false : true;
         return error_state;
     }
-    public void test(int hiddencount, List<List> input_elements) {
+    public void test(List<List> input_elements) {
         System.out.println("Backpropagation#test");
+
         int i, row = input_elements.size();
         int column = input_elements.get(0).size();
 
-        initoutput(hiddencount, row);
+        initoutput(row);
         for (i = 0; i < row; i++)
-            process(hiddencount, i, input_elements.get(i), column);
+            process(i, input_elements.get(i), column);
 
         for (i = 0; i < row; i++)
-            System.out.println(Y.get(i));
+            System.out.println("Inputs : " + input_elements.get(i)  + " Target: " + Y.get(i));
     }
-    public void process(int hiddencount, int j, List<Double> input_elements, int column) {
+    private void process(int j, List<Double> input_elements, int column) {
         int h, i;
         List<Double> wx;
 
@@ -196,26 +178,7 @@ public class Backpropagation {
             Y.set(j, Y.get(j) + H.get(h) * weight_output.get(h));
         Y.set(j, sigmoid(Y.get(j) + bias_output.get(0)));
     }
-    public static List<Double> process2(int hiddencount, int j, List<Double> input_elements, List<List> wi, List<Double> wo,List<Double> bi, List<Double> bo, List<Double> h, List<Double> y) {
-        int k, i;
-        List<Double> wx;
-
-        for (k = 0; k < hiddencount; k++) {
-            h.set(k, 0.0);
-            for (i = 0; i < input_elements.size(); i++) {
-                wx = wi.get(i);
-                h.set(k, h.get(k) + input_elements.get(i) * wx.get(k));
-            }
-            h.set(k, sigmoid(h.get(k) + bi.get(k)));
-        }
-        y.set(j, 0.0);
-        for (k = 0; k < hiddencount; k++) {
-            y.set(j, y.get(j) + h.get(k) * wo.get(k));
-        }
-        y.set(j, sigmoid(y.get(j) + bo.get(0)));
-        return y;
-    }
-    public boolean rmse(int row, List<Double> output_elements) throws InterruptedException {
+    private boolean rmse(int row, List<Double> output_elements) throws InterruptedException {
             double error = 0.0;
             for (int i = 0; i < row; i++)
                 error += Math.pow(Y.get(i) - output_elements.get(i), 2);
@@ -229,16 +192,16 @@ public class Backpropagation {
             // Graph end
             return (error > E) ? true : false;
     }
-    public static double sigmoid(double x) {// sigmoid fonksiyonu
+    private static double sigmoid(double x) {// sigmoid fonksiyonu
         return 1.0 / (1.0 + Math.exp(-x));
     }
-    public void keyn(int hiddencount, int j, List<Double> output_elements) {// keyH keyH hesaplar
+    private void keyn(int j, List<Double> output_elements) {// keyH keyH hesaplar
         keynY = Y.get(j) * (1.0 - Y.get(j)) * (output_elements.get(j) - Y.get(j));
         for (int h = 0; h < hiddencount; h++){
             keynH.set(h, H.get(h) * (1.0 - H.get(h)) * weight_output.get(h) * keynY);
         }
     }
-    public void change(int hiddencount, int j, List<List> input_elements, int column) {// Weight ve Bias değerlerinin güncellenmesi
+    private void change(int j, List<List> input_elements, int column) {// Weight ve Bias değerlerinin güncellenmesi
         List<Double> wi, inp, dwi;   
 
         for (int h = 0; h < hiddencount; h++){
@@ -257,5 +220,22 @@ public class Backpropagation {
         }
         dbias_output.set(0, lambda * keynY + momentconst * dbias_output.get(0));
         bias_output.set(0, bias_output.get(0) + dbias_output.get(0));
-    } 
+    }
+    public static void main(String[] args) throws IOException, InterruptedException {
+        int hcount = 3;
+        Backpropagation backpropagation = new Backpropagation(10000, 0.01, hcount, 1, false);
+
+        List<List> io_elements = new ArrayList<List>();
+        List<List> input_elements = new ArrayList<List>();
+        List<Double> output_elements = new ArrayList<Double>();
+
+        int column = 2;
+        io_elements = Matrix.fileread("train_xor.txt", column);
+        backpropagation.train(io_elements);
+
+        io_elements = Matrix.fileread("test_xor.txt", column);
+        input_elements = io_elements.get(0);
+
+        backpropagation.test(input_elements);
+    }
 }
